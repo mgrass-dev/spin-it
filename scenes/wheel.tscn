@@ -32,5 +32,8 @@ script = ExtResource("3_b52vq")
 [node name="WheelBg" type="AnimatedSprite2D" parent="." unique_id=1876406540]
 sprite_frames = SubResource("SpriteFrames_c65p7")
 
-[node name="InnerWheel" type="AnimatedSprite2D" parent="." unique_id=1243555671]
+[node name="SpinningPart" type="Node2D" parent="." unique_id=2031847563]
+
+[node name="InnerWheel" type="AnimatedSprite2D" parent="SpinningPart" unique_id=1243555671]
+z_index = 2
 sprite_frames = SubResource("SpriteFrames_b52vq")
