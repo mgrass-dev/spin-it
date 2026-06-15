@@ -29,27 +29,39 @@ func _setup_items() -> void:
 		item.slot_color = WheelItem.SlotColor.BLACK if i % 2 == 0 else WheelItem.SlotColor.RED
 		item.modifier = values[i]
 		_spinning_part.add_child(item)
-		item.ball_hit.connect(slow_down)
 
-func connect_to_button(button: Button) -> void:
-	button.spin_requested.connect(_on_spin_requested)
-
-func _on_spin_requested() -> void:
-	var spins = randf_range(min_spins, max_spins)
+func start_spinning() -> void:
+	if _tween and _tween.is_valid():
+		_tween.kill()
+	var speed := max_spins / spin_duration
+	var spin_count := 30.0
 	_tween = create_tween()
-	_tween.tween_property(_spinning_part, "rotation", _spinning_part.rotation + TAU * spins, spin_duration)\
-		.set_trans(Tween.TRANS_CUBIC)\
-		.set_ease(Tween.EASE_OUT)
+	_tween.tween_property(_spinning_part, "rotation",
+		_spinning_part.rotation + TAU * spin_count,
+		spin_count / speed)\
+		.set_trans(Tween.TRANS_LINEAR)
 
-func slow_down(item: Area2D) -> void:
-	if _tween == null or not _tween.is_valid():
+func stop_on_random_item() -> void:
+	if _tween and _tween.is_valid():
+		_tween.kill()
+
+	var items: Array = []
+	for child in _spinning_part.get_children():
+		if child is WheelItem:
+			items.append(child)
+	if items.is_empty():
 		return
-	_tween.kill()
-	var mod_node = item.get_node_or_null("Modifier")
-	if mod_node and mod_node.has_method("apply"):
-		mod_node.apply(self)
-	var tween = create_tween()
-	tween.tween_property(_spinning_part, "rotation", _spinning_part.rotation + TAU * 0.25, spin_duration * 0.3)\
+
+	var target: WheelItem = items[randi() % items.size()]
+	var item_angle := target.position.angle()
+
+	# Align target item to the top pointer (-PI/2 in Godot's Y-down system)
+	var base := -PI / 2.0 - item_angle
+	var current_r := _spinning_part.rotation
+	var n := ceili((current_r + TAU - base) / TAU)
+	var target_r := base + n * TAU
+
+	_tween = create_tween()
+	_tween.tween_property(_spinning_part, "rotation", target_r, spin_duration)\
 		.set_trans(Tween.TRANS_CUBIC)\
 		.set_ease(Tween.EASE_OUT)
-	_tween = tween
