@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://d3f6vbykshamd" path="res://sprites/hud/hud_portemonnaie.png" id="8_wallet"]
 [ext_resource type="Texture2D" uid="uid://crvcgeqwk3yuy" path="res://sprites/hud/hud_bille.png" id="9_hud_ball"]
 [ext_resource type="Texture2D" uid="uid://cv2fo2kuwiwf1" path="res://sprites/hud/hud_modificateur.png" id="10_modifier"]
+[ext_resource type="PackedScene" uid="uid://cdam8ge5x3w7ba" path="res://scenes/damage_display.tscn" id="11_damage"]
 
 [node name="Main" type="Node2D" unique_id=1165397904]
 script = ExtResource("1_script")
@@ -63,3 +64,5 @@ texture = ExtResource("10_modifier")
 [node name="Ball" parent="." unique_id=200000010 instance=ExtResource("2_ball")]
 z_index = 2
 position = Vector2(380, 566)
+
+[node name="DamageDisplay" parent="." unique_id=200000011 instance=ExtResource("11_damage")]

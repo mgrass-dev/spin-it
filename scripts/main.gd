@@ -2,6 +2,7 @@ extends Node2D
 
 @onready var player_wheel: Node2D = $PlayerWheel
 @onready var ball: Node2D = $Ball
+@onready var damage_display: CanvasLayer = $DamageDisplay
 
 const WHEEL_VISUAL_RADIUS := 250.0
 const BALL_APPROACH_DURATION := 0.5
@@ -16,6 +17,7 @@ func _ready() -> void:
 	ball.picked_up.connect(_on_ball_picked_up)
 	ball.released.connect(_on_ball_released)
 	player_wheel.spin_completed.connect(_on_spin_completed)
+	damage_display.damage_applied.connect(_on_damage_applied)
 
 func _process(delta: float) -> void:
 	if ball.is_held():
@@ -76,8 +78,9 @@ func _launch_ball_on_wheel() -> void:
 
 func _on_spin_completed(item: WheelItem) -> void:
 	_ball_rolling = false
-	# Small squish to signal the ball landing on the item
-	var tween := create_tween()
-	tween.tween_property(ball, "scale", Vector2(1.3, 0.7), 0.08)
-	tween.tween_property(ball, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
-	print("Bille sur: %d → %d dégâts infligés à l'ennemi" % [item.modifier, item.modifier])
+	ball.visible = false
+	damage_display.show_damage(item.modifier)
+
+func _on_damage_applied(_amount: int) -> void:
+	ball.return_to_slot()
+	ball.visible = true
