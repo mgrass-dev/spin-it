@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://bjmfvq2gql273"]
+
+[ext_resource type="PackedScene" uid="uid://b1oi25satqc2b" path="res://scenes/wheel.tscn" id="1_0wfyh"]
+[ext_resource type="Script" uid="uid://clsveshb4uka" path="res://scripts/main.gd" id="1_sugp2"]
+[ext_resource type="PackedScene" uid="uid://8kp7fp086lf0" path="res://scenes/spin_button.tscn" id="2_sugp2"]
+
+[node name="Main" type="Node2D" unique_id=1165397904]
+script = ExtResource("1_sugp2")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2019002469]
+anchor_mode = 0
+
+[node name="Wheel" parent="." unique_id=1552624772 instance=ExtResource("1_0wfyh")]
+position = Vector2(581, 295)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1624975426]
+
+[node name="SpinButton" parent="CanvasLayer" unique_id=2012166343 instance=ExtResource("2_sugp2")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -62.5
+offset_top = -68.0
+offset_right = 66.5
+offset_bottom = -37.0
+grow_horizontal = 2
+grow_vertical = 0

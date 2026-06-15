@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://8kp7fp086lf0"]
+
+[ext_resource type="Script" uid="uid://cwbkhbbfc7a0t" path="res://scripts/spin_button.gd" id="1_h8ea6"]
+
+[node name="Button" type="Button" unique_id=1032862710]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Tourner la roue"
+script = ExtResource("1_h8ea6")
