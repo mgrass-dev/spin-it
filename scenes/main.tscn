@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bjmfvq2gql273"]
 
-[ext_resource type="PackedScene" uid="uid://b1oi25satqc2b" path="res://scenes/wheel.tscn" id="1_wheel"]
 [ext_resource type="Script" uid="uid://clsveshb4uka" path="res://scripts/main.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://b1oi25satqc2b" path="res://scenes/wheel.tscn" id="1_wheel"]
 [ext_resource type="PackedScene" uid="uid://d8rin1idfaff" path="res://scenes/ball.tscn" id="2_ball"]
 [ext_resource type="Texture2D" uid="uid://dkebnr0474l07" path="res://sprites/background/fond_ennemi.png" id="3_enemy_bg"]
 [ext_resource type="Texture2D" uid="uid://dufvspmj8ri5g" path="res://sprites/background/fond_joueur.png" id="4_player_bg"]
@@ -19,13 +19,13 @@ script = ExtResource("1_script")
 anchor_mode = 0
 
 [node name="EnemyBackground" type="Sprite2D" parent="." unique_id=200000001]
-position = Vector2(480, 150)
-scale = Vector2(1.0, 1.1)
+position = Vector2(480, 157.50002)
+scale = Vector2(1, 1.0500001)
 texture = ExtResource("3_enemy_bg")
 
 [node name="PlayerBackground" type="Sprite2D" parent="." unique_id=200000002]
-position = Vector2(480, 470)
-scale = Vector2(1.0, 1.1)
+position = Vector2(480, 462.5)
+scale = Vector2(1, 1.0500001)
 texture = ExtResource("4_player_bg")
 
 [node name="Separator" type="Sprite2D" parent="." unique_id=200000003]
@@ -41,25 +41,25 @@ position = Vector2(820, 155)
 scale = Vector2(0.5, 0.5)
 
 [node name="PlayerWheel" parent="." unique_id=1552624772 instance=ExtResource("1_wheel")]
-position = Vector2(185, 475)
+position = Vector2(152, 468.99997)
 scale = Vector2(0.55, 0.55)
 
 [node name="PlayerHealthBar" type="Sprite2D" parent="." unique_id=200000006]
-position = Vector2(800, 365)
+position = Vector2(799, 350)
 texture = ExtResource("7_player_hp")
 
 [node name="HudWallet" type="Sprite2D" parent="." unique_id=200000007]
-position = Vector2(490, 415)
+position = Vector2(480, 471)
 texture = ExtResource("8_wallet")
 
 [node name="HudBall" type="Sprite2D" parent="." unique_id=200000008]
-position = Vector2(490, 555)
+position = Vector2(489, 570)
 texture = ExtResource("9_hud_ball")
 
 [node name="HudModifier" type="Sprite2D" parent="." unique_id=200000009]
-position = Vector2(800, 490)
+position = Vector2(802, 510)
 texture = ExtResource("10_modifier")
 
 [node name="Ball" parent="." unique_id=200000010 instance=ExtResource("2_ball")]
-position = Vector2(385, 565)
 z_index = 2
+position = Vector2(380, 566)
