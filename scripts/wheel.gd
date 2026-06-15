@@ -56,7 +56,7 @@ func _setup_items() -> void:
 func start_spinning() -> void:
 	if _tween and _tween.is_valid():
 		_tween.kill()
-	_spin_speed = TAU * 1.5
+	_spin_speed = TAU * 3.5
 
 func stop_spinning() -> void:
 	_spin_speed = 0.0
