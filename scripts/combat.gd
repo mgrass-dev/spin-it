@@ -23,6 +23,8 @@ const ENEMY_LOG_SIZE := Vector2(250, 300)
 @onready var _enemy_hp_bar: HPBar = $UILayer/EnemyHPBar
 @onready var _player_hp_bar: HPBar = $UILayer/PlayerHPBar
 
+const BALL_Y_OFFSET := 15.0
+
 var _ball_over_wheel := false
 var _ball_rolling := false
 var _ball_offset_angle := 0.0
@@ -172,7 +174,8 @@ func _process(delta: float) -> void:
 		var spin_r: float = player_wheel.get_spinning_rotation()
 		var radius: float = player_wheel.get_item_world_radius()
 		var target_pos: Vector2 = player_wheel.global_position + \
-			Vector2(cos(spin_r + _ball_offset_angle), sin(spin_r + _ball_offset_angle)) * radius
+			Vector2(cos(spin_r + _ball_offset_angle), sin(spin_r + _ball_offset_angle)) * radius + \
+			Vector2(0, BALL_Y_OFFSET)
 
 		if _ball_approach_time > 0.0:
 			_ball_approach_time -= delta
