@@ -21,7 +21,7 @@ static func _level_params(level_id: int) -> Dictionary:
 		var json := JSON.new()
 		json.parse(file.get_as_text())
 		file.close()
-		var data := json.get_data()
+		var data = json.get_data()
 		if data is Dictionary and data.get("nodes") != null:
 			return {
 				"id": level_id,

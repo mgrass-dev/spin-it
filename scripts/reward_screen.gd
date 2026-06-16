@@ -19,6 +19,7 @@ var _mini_wheel_container: Node2D
 var _mini_wheel_close_btn: Button
 var _replaced_card: ColorRect
 var _slot_selected := false
+var _mini_default_values: Array = []
 
 signal closed()
 
@@ -285,8 +286,8 @@ func _build_mini_wheel_visual() -> void:
 	_mini_wheel_container.add_child(bg)
 
 	var angle_step: float = TAU / 20
-	var default_values: Array = Array(range(1, 21))
-	default_values.shuffle()
+	_mini_default_values = Array(range(1, 21))
+	_mini_default_values.shuffle()
 
 	var equipped_by_pos: Dictionary = {}
 	for eq in GameState.equipped_wheel_slots:
@@ -306,7 +307,7 @@ func _build_mini_wheel_visual() -> void:
 			val = eq.get("value", 1)
 		else:
 			is_black = i % 2 == 0
-			val = default_values[i]
+			val = _mini_default_values[i]
 
 		var tex := SLOT_BLACK if is_black else SLOT_RED
 		var sp := Sprite2D.new()
@@ -380,6 +381,21 @@ func _apply_slot(slot_index: int) -> void:
 				if item.get("id", "") == replaced.get("item_id", ""):
 					replaced_item = item.duplicate()
 					break
+		if replaced_item.is_empty():
+			var was_black := slot_index % 2 == 0
+			var prev_color := "black" if was_black else "red"
+			var prev_val: int = _mini_default_values[slot_index] if slot_index < _mini_default_values.size() else 0
+			if not replaced.is_empty():
+				prev_color = replaced.get("slot_color", prev_color)
+				prev_val = replaced.get("value", prev_val)
+			replaced_item = {
+				"id": "",
+				"name": "Slot %d" % (slot_index + 1),
+				"description": "%s - %d" % [prev_color, prev_val],
+				"type": "wheel_item",
+				"icon_path": "res://sprites/roue/slot_%s.png" % prev_color,
+				"rarity": "commun",
+			}
 		_make_mini_card(_replaced_card, replaced_item, "Replaced")
 
 func _on_mini_wheel_close() -> void:

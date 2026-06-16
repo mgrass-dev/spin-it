@@ -265,8 +265,8 @@ func _on_spin_completed(item: WheelItem) -> void:
 	damage_display.show_damage(value)
 
 	var throw_num: int = THROWS_PER_TURN - _player_throws_remaining
-	_add_player_log("Throw %d: %d (total: %d)" % [
-		throw_num, value, _player_accumulated_damage
+	_add_player_log("Throw %d: %d %s (total: %d)" % [
+		throw_num, value, color_str, _player_accumulated_damage
 	])
 
 	if _player_throws_remaining <= 0:
@@ -285,9 +285,10 @@ func _on_enemy_spin_completed(item: WheelItem) -> void:
 
 	damage_display.show_damage(item.modifier)
 
+	var color_str := "black" if item.slot_color == WheelItem.SlotColor.BLACK else "red"
 	var throw_num: int = THROWS_PER_TURN - _enemy_throws_remaining
-	_add_enemy_log("Throw %d: %d (total: %d)" % [
-		throw_num, item.modifier, _enemy_accumulated_damage
+	_add_enemy_log("Throw %d: %d %s (total: %d)" % [
+		throw_num, item.modifier, color_str, _enemy_accumulated_damage
 	])
 
 	if _enemy_throws_remaining > 0:
