@@ -28,4 +28,5 @@ func add_line(text: String, color: Color) -> void:
 	label.add_theme_color_override("font_color", color)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_vbox.add_child(label)
+	await get_tree().process_frame
 	_scroll.scroll_vertical = 999999

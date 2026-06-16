@@ -55,6 +55,8 @@ func _ready() -> void:
 	_setup_enemy_ball()
 	_start_player_turn()
 
+# ─── Setup ───────────────────────────────────────────────────────────────────
+
 func _setup_hp_bars() -> void:
 	if GameState.enemy_max_hp == 0:
 		GameState.enemy_max_hp = 50
@@ -72,6 +74,7 @@ func _setup_hp_bars() -> void:
 	_player_hp_bar.setup(null, "", GameState.player_hp, GameState.player_max_hp)
 
 func _setup_section_overlays() -> void:
+	# Layer 2 sits above the Node2D world but below the HP-bar UILayer (5)
 	var layer := CanvasLayer.new()
 	layer.layer = 2
 	add_child(layer)
@@ -109,11 +112,15 @@ func _setup_logs() -> void:
 	_enemy_log.size = ENEMY_LOG_SIZE
 	_ui_layer.add_child(_enemy_log)
 
+# ─── Logging ─────────────────────────────────────────────────────────────────
+
 func _add_player_log(text: String) -> void:
 	_player_log.add_line(text, Color(1.0, 0.85, 0.7))
 
 func _add_enemy_log(text: String) -> void:
 	_enemy_log.add_line(text, Color(0.7, 0.85, 1.0))
+
+# ─── Turn management ─────────────────────────────────────────────────────────
 
 func _start_player_turn() -> void:
 	_current_turn = Turn.PLAYER
@@ -132,6 +139,8 @@ func _start_enemy_turn() -> void:
 	await get_tree().create_timer(ENEMY_SPIN_DELAY).timeout
 	if not _combat_over:
 		enemy_wheel.stop_on_random_item()
+
+# ─── Process / Ball ──────────────────────────────────────────────────────────
 
 func _process(delta: float) -> void:
 	if _combat_over:
@@ -191,12 +200,16 @@ func _launch_ball_on_wheel() -> void:
 		return
 
 	var target_r: float = float(spin_info["target_r"])
+	# Offset so ball ends at world angle -PI/2 (pointer/top) when
+	# spinning_part reaches target_r (winning wheel_item position).
 	_ball_offset_angle = -PI / 2.0 - target_r
 	_ball_approach_start = ball.global_position
 	_ball_approach_time = BALL_APPROACH_DURATION
 
 	ball.start_rolling()
 	_ball_rolling = true
+
+# ─── Spin callbacks ──────────────────────────────────────────────────────────
 
 func _on_spin_completed(item: WheelItem) -> void:
 	_ball_rolling = false
@@ -208,6 +221,8 @@ func _on_enemy_spin_completed(item: WheelItem) -> void:
 		return
 	_enemy_ball.visible = false
 	damage_display.show_damage(item.modifier)
+
+# ─── Damage resolution ───────────────────────────────────────────────────────
 
 func _on_damage_applied(amount: int) -> void:
 	match _current_turn:
@@ -239,6 +254,8 @@ func _apply_enemy_damage(amount: int) -> void:
 		_show_end_screen()
 	else:
 		_start_player_turn()
+
+# ─── End screen ──────────────────────────────────────────────────────────────
 
 func _show_end_screen() -> void:
 	var canvas := CanvasLayer.new()
