@@ -75,4 +75,12 @@ custom_minimum_size = Vector2(200, 44)
 theme_override_font_sizes/font_size = 20
 text = "Start"
 
+[node name="WheelPreviewBtn" type="Button" parent="UILayer"]
+offset_left = 20.0
+offset_top = 670.0
+offset_right = 120.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 16
+text = "Roue"
+
 [node name="SettingsMenu" parent="." unique_id=1086407467 instance=ExtResource("4_settings")]

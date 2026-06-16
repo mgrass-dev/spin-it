@@ -56,6 +56,7 @@ static func _fallback_params(level_id: int) -> Dictionary:
 @onready var info_panel: Control = $UILayer/InfoPanel
 @onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/Margins/Layout/MobHPBar
 @onready var start_button: Button = $UILayer/InfoPanel/Margins/Layout/StartButton
+@onready var wheel_preview_btn: Button = $UILayer/WheelPreviewBtn
 
 # Pixel bounds of the brown panel inside the 1920×1080 map_legend.png sprite
 const _BROWN_RECT := Rect2(1575, 363, 265, 416)
@@ -70,6 +71,7 @@ func _ready() -> void:
 	info_panel.visible = false
 	start_button.pressed.connect(_on_start_pressed)
 	start_button.add_theme_color_override("font_color", Color.WHITE)
+	wheel_preview_btn.pressed.connect(_on_wheel_preview_pressed)
 	_load_level(GameState.current_level)
 
 func _fit_info_panel() -> void:
@@ -206,6 +208,31 @@ func _on_start_pressed() -> void:
 		return
 	GameState.start_combat(selected_node.node_id, level_data)
 	get_tree().change_scene_to_file("res://scenes/combat.tscn")
+
+func _on_wheel_preview_pressed() -> void:
+	var overlay := CanvasLayer.new()
+	overlay.layer = 10
+	add_child(overlay)
+
+	var bg := ColorRect.new()
+	bg.color = Color(0, 0, 0, 0.75)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(bg)
+
+	var wheel := preload("res://scenes/wheel.tscn").instantiate()
+	wheel.position = Vector2(640, 340)
+	wheel.scale = Vector2(0.85, 0.85)
+	overlay.add_child(wheel)
+
+	var close_btn := Button.new()
+	close_btn.text = "Fermer"
+	close_btn.size = Vector2(160, 40)
+	close_btn.position = Vector2(640 - 80, 650)
+	close_btn.add_theme_font_size_override("font_size", 20)
+	close_btn.pressed.connect(func():
+		overlay.queue_free()
+	)
+	overlay.add_child(close_btn)
 
 func _open_merchant() -> void:
 	var reward = load("res://scripts/reward_screen.gd").new()
