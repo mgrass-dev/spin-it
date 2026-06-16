@@ -34,7 +34,7 @@ func _ready() -> void:
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_label.set_size(Vector2(64.0, 40.0))
-	_label.position = Vector2(-32.0, -20.0)
+	_label.position = Vector2(-32.0, -60.0)
 	_label.z_index = 1
 	add_child(_label)
 
