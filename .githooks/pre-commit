@@ -1,0 +1,41 @@
+#!/bin/bash
+# Pre-commit hook: validate modified .tscn and .gd files
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Check modified .tscn files for common syntax errors
+tscn_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.tscn$' || true)
+
+if [ -n "$tscn_files" ]; then
+    for file in $tscn_files; do
+        if [ ! -f "$file" ]; then
+            continue
+        fi
+        # Check for theme_override_colors with inline Color() (not supported in TSCN)
+        if grep -nP 'theme_override_colors/.*= Color\(' "$file" 2>/dev/null; then
+            echo "❌ ERROR: $file uses 'theme_override_colors/... = Color(...)' inline."
+            echo "   Godot TSCN parser doesn't support this. Use add_theme_color_override() in script instead."
+            exit 1
+        fi
+        # Check for missing [node or [ext_resource at start
+        head -1 "$file" | grep -q '^\[gd_scene' || { echo "❌ ERROR: $file doesn't start with [gd_scene"; exit 1; }
+    done
+fi
+
+# Check modified .gd files for basic syntax issues
+gd_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.gd$' || true)
+if [ -n "$gd_files" ]; then
+    for file in $gd_files; do
+        if [ ! -f "$file" ]; then
+            continue
+        fi
+        # Check for basic GDScript structure
+        if ! grep -q '^extends\|^class_name\|^#\|^@tool' "$file" 2>/dev/null; then
+            echo "⚠️  WARNING: $file doesn't start with extends/class_name"
+        fi
+    done
+fi
+
+echo "✅ Pre-commit checks passed."

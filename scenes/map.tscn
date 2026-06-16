@@ -51,24 +51,27 @@ grow_vertical = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_bottom = 22
 
 [node name="Layout" type="VBoxContainer" parent="UILayer/InfoPanel/Margins"]
 layout_mode = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 6
 
 [node name="MobHPBar" parent="UILayer/InfoPanel/Margins/Layout" unique_id=1301830699 instance=ExtResource("5_hpbar")]
 layout_mode = 2
+size_flags_horizontal = 1
 icon_size = Vector2(60, 60)
 font_size_name = 16
 
-[node name="Spacer" type="Control" parent="UILayer/InfoPanel/Margins/Layout"]
+[node name="Modifiers" type="VBoxContainer" parent="UILayer/InfoPanel/Margins/Layout"]
 layout_mode = 2
+size_flags_horizontal = 1
 size_flags_vertical = 3
 
 [node name="StartButton" type="Button" parent="UILayer/InfoPanel/Margins/Layout" unique_id=116838596]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(200, 44)
 theme_override_font_sizes/font_size = 20
 text = "Start"
 

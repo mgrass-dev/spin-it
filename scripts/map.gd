@@ -36,7 +36,7 @@ static func _level_params(level_id: int) -> Dictionary:
 @onready var start_button: Button = $UILayer/InfoPanel/Margins/Layout/StartButton
 
 # Pixel bounds of the brown panel inside the 1920×1080 map_legend.png sprite
-const _BROWN_RECT := Rect2(1600, 363, 290, 426)
+const _BROWN_RECT := Rect2(1575, 363, 265, 416)
 
 var level_data: Dictionary = {}
 var map_nodes: Dictionary = {}
@@ -47,6 +47,7 @@ func _ready() -> void:
 	info_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	info_panel.visible = false
 	start_button.pressed.connect(_on_start_pressed)
+	start_button.add_theme_color_override("font_color", Color.WHITE)
 	_load_level(GameState.current_level)
 
 func _fit_info_panel() -> void:
