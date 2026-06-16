@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://c3mapscene001"]
+
+[ext_resource type="Script" uid="uid://c3mapscript01" path="res://scripts/map/map.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://d3plvhbe2iqdv" path="res://sprites/map/map_bg_frame.png" id="2_bg"]
+[ext_resource type="Texture2D" uid="uid://cvt7p5inj0fo" path="res://sprites/map/map_legend.png" id="3_legend"]
+[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/menu/settings_menu.tscn" id="4_settings"]
+[ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/ui/hp_bar.tscn" id="5_hpbar"]
+
+[node name="Map" type="Node2D" unique_id=585676313]
+script = ExtResource("1_script")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1205054070]
+anchor_mode = 0
+
+[node name="Background" type="Sprite2D" parent="." unique_id=1597721443]
+position = Vector2(640, 360)
+scale = Vector2(0.66667, 0.66667)
+texture = ExtResource("2_bg")
+
+[node name="LegendPanel" type="Sprite2D" parent="." unique_id=864277671]
+position = Vector2(279.00006, 349.00003)
+scale = Vector2(1.0666667, 1.1)
+texture = ExtResource("3_legend")
+
+[node name="PathsLayer" type="Node2D" parent="." unique_id=591612369]
+
+[node name="NodesLayer" type="Node2D" parent="." unique_id=1314010144]
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=1751783969]
+
+[node name="BossHPBar" parent="UILayer" unique_id=1997170844 instance=ExtResource("5_hpbar")]
+offset_left = 20.0
+offset_top = 10.0
+offset_right = 360.0
+offset_bottom = 62.0
+
+[node name="InfoPanel" type="Panel" parent="UILayer" unique_id=589088668]
+visible = false
+offset_left = 952.0
+offset_top = 80.0
+offset_right = 1240.0
+offset_bottom = 700.0
+
+[node name="Margins" type="MarginContainer" parent="UILayer/InfoPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 22
+
+[node name="Layout" type="VBoxContainer" parent="UILayer/InfoPanel/Margins"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MobHPBar" parent="UILayer/InfoPanel/Margins/Layout" unique_id=1301830699 instance=ExtResource("5_hpbar")]
+layout_mode = 2
+size_flags_horizontal = 1
+icon_size = Vector2(60, 60)
+font_size_name = 16
+
+[node name="Modifiers" type="VBoxContainer" parent="UILayer/InfoPanel/Margins/Layout"]
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 3
+
+[node name="StartButton" type="Button" parent="UILayer/InfoPanel/Margins/Layout" unique_id=116838596]
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(200, 44)
+theme_override_font_sizes/font_size = 20
+text = "Start"
+
+[node name="WheelPreviewBtn" type="Button" parent="UILayer"]
+offset_left = 20.0
+offset_top = 670.0
+offset_right = 120.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 16
+text = "Roue"
+
+[node name="SettingsMenu" parent="." unique_id=1086407467 instance=ExtResource("4_settings")]

@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://d8rin1idfaff"]
+
+[ext_resource type="Script" uid="uid://cvqb5r8kmt123" path="res://scripts/combat/ball.gd" id="1_bi001"]
+[ext_resource type="Texture2D" uid="uid://ddyqso6d2sm6k" path="res://sprites/balls/ball_white.png" id="2_bi002"]
+
+[node name="Ball" type="Node2D"]
+script = ExtResource("1_bi001")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_bi002")
