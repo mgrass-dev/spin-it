@@ -132,10 +132,17 @@ func _show_return_button() -> void:
 	var canvas := CanvasLayer.new()
 	canvas.layer = 15
 	add_child(canvas)
+
+	var overlay := ColorRect.new()
+	overlay.color = Color(0, 0, 0, 0.502)
+	overlay.position = Vector2.ZERO
+	overlay.size = Vector2(1280, 720)
+	canvas.add_child(overlay)
+
 	var btn := Button.new()
 	btn.text = "Retour à la carte"
-	btn.position = Vector2(490, 628)
 	btn.size = Vector2(300, 48)
+	btn.position = Vector2(640 - 150, 360 - 24)
 	btn.add_theme_font_size_override("font_size", 20)
 	btn.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/map.tscn"))
 	canvas.add_child(btn)
