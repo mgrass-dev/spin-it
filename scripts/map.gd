@@ -13,6 +13,9 @@ const GAP_LEN := 12.0
 @onready var boss_hp_bar: ProgressBar = $UILayer/BossSection/HPBar
 @onready var info_panel: Control = $UILayer/InfoPanel
 @onready var node_label: Label = $UILayer/InfoPanel/NodeLabel
+@onready var mob_icon: TextureRect = $UILayer/InfoPanel/MobIcon
+@onready var mob_name_label: Label = $UILayer/InfoPanel/MobName
+@onready var mob_hp_label: Label = $UILayer/InfoPanel/MobHP
 @onready var start_button: Button = $UILayer/InfoPanel/StartButton
 
 var level_data: Dictionary = {}
@@ -21,6 +24,7 @@ var selected_node: MapNode = null
 
 func _ready() -> void:
 	_style_hp_bar()
+	info_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	info_panel.visible = false
 	start_button.pressed.connect(_on_start_pressed)
 	_load_level(GameState.current_level)
@@ -118,10 +122,35 @@ func _find_node_data(id: String) -> Dictionary:
 			return node_data
 	return {}
 
+const _NODE_ICONS := {
+	"combat": "res://sprites/map/icone_combat.png",
+	"boss": "res://sprites/map/icone_boss.png",
+	"merchant": "res://sprites/map/icone_marchand.png",
+	"start": "res://sprites/map/icone_départ.png",
+}
+
 func _on_node_selected(mn: MapNode) -> void:
 	selected_node = mn
 	info_panel.visible = true
 	node_label.text = _type_label(mn.node_type)
+	mob_icon.texture = load(_NODE_ICONS.get(mn.node_type, _NODE_ICONS["combat"]))
+	start_button.visible = mn.node_type != "start"
+
+	match mn.node_type:
+		"combat":
+			var e: Dictionary = level_data.get("enemies", {}).get("default_combat", {})
+			mob_name_label.text = e.get("name", "Inconnu")
+			mob_hp_label.text = "PV : %d / %d" % [e.get("hp", 0), e.get("max_hp", 0)]
+		"boss":
+			var b: Dictionary = level_data.get("boss", {})
+			mob_name_label.text = b.get("name", "Inconnu")
+			mob_hp_label.text = "PV : %d / %d" % [b.get("hp", 0), b.get("max_hp", 0)]
+		"merchant":
+			mob_name_label.text = "Marchand"
+			mob_hp_label.text = ""
+		_:
+			mob_name_label.text = ""
+			mob_hp_label.text = ""
 
 func _type_label(type: String) -> String:
 	match type:

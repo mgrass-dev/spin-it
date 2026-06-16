@@ -29,6 +29,9 @@ var _player_log_vbox: VBoxContainer
 var _enemy_log_vbox: VBoxContainer
 var _player_log_scroll: ScrollContainer
 var _enemy_log_scroll: ScrollContainer
+var _enemy_ball: Sprite2D
+var _enemy_hp_label: Label
+var _player_hp_label: Label
 
 func _ready() -> void:
 	if not OS.has_feature("editor"):
@@ -45,6 +48,7 @@ func _ready() -> void:
 	_setup_hp_bars()
 	_setup_section_overlays()
 	_setup_logs()
+	_setup_enemy_ball()
 	_start_player_turn()
 
 # ─── Setup ───────────────────────────────────────────────────────────────────
@@ -73,6 +77,21 @@ func _setup_hp_bars() -> void:
 	_player_hp_bar.max_value = GameState.player_max_hp
 	_player_hp_bar.value = GameState.player_hp
 
+	for bar: ProgressBar in [_enemy_hp_bar, _player_hp_bar]:
+		var lbl := Label.new()
+		lbl.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.add_theme_color_override("font_color", Color.WHITE)
+		lbl.add_theme_font_size_override("font_size", 12)
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.add_child(lbl)
+		if bar == _enemy_hp_bar:
+			_enemy_hp_label = lbl
+		else:
+			_player_hp_label = lbl
+	_update_hp_labels()
+
 func _setup_section_overlays() -> void:
 	# Layer 2 sits above the Node2D world but below the HP-bar UILayer (5)
 	var layer := CanvasLayer.new()
@@ -80,18 +99,32 @@ func _setup_section_overlays() -> void:
 	add_child(layer)
 
 	_enemy_section_overlay = ColorRect.new()
-	_enemy_section_overlay.color = Color(0, 0, 0, 0x50 / 255.0)
+	_enemy_section_overlay.color = Color(0, 0, 0, 0xA0 / 255.0)
 	_enemy_section_overlay.position = Vector2.ZERO
 	_enemy_section_overlay.size = Vector2(1280, 315)
 	_enemy_section_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_enemy_section_overlay)
 
 	_player_section_overlay = ColorRect.new()
-	_player_section_overlay.color = Color(0, 0, 0, 0x50 / 255.0)
+	_player_section_overlay.color = Color(0, 0, 0, 0xA0 / 255.0)
 	_player_section_overlay.position = Vector2(0, 315)
 	_player_section_overlay.size = Vector2(1280, 405)
 	_player_section_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_player_section_overlay)
+
+func _setup_enemy_ball() -> void:
+	_enemy_ball = Sprite2D.new()
+	_enemy_ball.texture = load("res://sprites/billes/bille_blanche.png")
+	_enemy_ball.scale = Vector2(0.5, 0.5)
+	_enemy_ball.z_index = 2
+	_enemy_ball.visible = false
+	add_child(_enemy_ball)
+
+func _update_hp_labels() -> void:
+	if _enemy_hp_label:
+		_enemy_hp_label.text = "%d / %d" % [GameState.enemy_hp, GameState.enemy_max_hp]
+	if _player_hp_label:
+		_player_hp_label.text = "%d / %d" % [GameState.player_hp, GameState.player_max_hp]
 
 func _setup_logs() -> void:
 	# Player log — bottom-left of player section, left of the wheel
@@ -156,6 +189,7 @@ func _start_enemy_turn() -> void:
 	_player_section_overlay.visible = true
 	_add_enemy_log("— Tour %d : tour ennemi —" % _turn_number)
 
+	_enemy_ball.visible = true
 	enemy_wheel.start_spinning()
 	await get_tree().create_timer(ENEMY_SPIN_DELAY).timeout
 	if not _combat_over:
@@ -164,7 +198,15 @@ func _start_enemy_turn() -> void:
 # ─── Process / Ball ──────────────────────────────────────────────────────────
 
 func _process(delta: float) -> void:
-	if _combat_over or _current_turn == Turn.ENEMY:
+	if _combat_over:
+		return
+
+	if _current_turn == Turn.ENEMY:
+		if _enemy_ball != null and _enemy_ball.visible:
+			var spin_r: float = enemy_wheel.get_spinning_rotation()
+			var radius: float = enemy_wheel.get_item_world_radius()
+			_enemy_ball.global_position = enemy_wheel.global_position + \
+				Vector2(cos(spin_r), sin(spin_r)) * radius
 		return
 
 	if ball.is_held():
@@ -235,6 +277,7 @@ func _on_spin_completed(item: WheelItem) -> void:
 func _on_enemy_spin_completed(item: WheelItem) -> void:
 	if _combat_over:
 		return
+	_enemy_ball.visible = false
 	damage_display.show_damage(item.modifier)
 
 # ─── Damage resolution ───────────────────────────────────────────────────────
@@ -247,6 +290,7 @@ func _on_damage_applied(amount: int) -> void:
 func _apply_player_damage(amount: int) -> void:
 	GameState.enemy_hp = maxi(0, GameState.enemy_hp - amount)
 	_enemy_hp_bar.value = GameState.enemy_hp
+	_update_hp_labels()
 	ball.return_to_slot()
 	ball.visible = true
 	_add_player_log("Vous infligez %d dégâts  (ennemi : %d PV)" % [amount, GameState.enemy_hp])
@@ -261,6 +305,7 @@ func _apply_player_damage(amount: int) -> void:
 func _apply_enemy_damage(amount: int) -> void:
 	GameState.player_hp = maxi(0, GameState.player_hp - amount)
 	_player_hp_bar.value = GameState.player_hp
+	_update_hp_labels()
 	_add_enemy_log("L'ennemi inflige %d dégâts  (vous : %d PV)" % [amount, GameState.player_hp])
 	_turn_number += 1
 	if GameState.player_hp <= 0:

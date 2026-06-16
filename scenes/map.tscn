@@ -58,18 +58,44 @@ visible = false
 
 [node name="NodeLabel" type="Label" parent="UILayer/InfoPanel"]
 offset_left = 10.0
-offset_top = 20.0
+offset_top = 14.0
 offset_right = 278.0
-offset_bottom = 72.0
+offset_bottom = 50.0
 text = "Combat"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
+
+[node name="MobIcon" type="TextureRect" parent="UILayer/InfoPanel"]
+offset_left = 94.0
+offset_top = 58.0
+offset_right = 194.0
+offset_bottom = 158.0
+expand_mode = 1
+stretch_mode = 4
+
+[node name="MobName" type="Label" parent="UILayer/InfoPanel"]
+offset_left = 10.0
+offset_top = 164.0
+offset_right = 278.0
+offset_bottom = 196.0
+text = ""
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="MobHP" type="Label" parent="UILayer/InfoPanel"]
+offset_left = 10.0
+offset_top = 202.0
+offset_right = 278.0
+offset_bottom = 228.0
+text = ""
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
 
 [node name="StartButton" type="Button" parent="UILayer/InfoPanel"]
 offset_left = 44.0
-offset_top = 558.0
+offset_top = 574.0
 offset_right = 244.0
-offset_bottom = 608.0
+offset_bottom = 618.0
 text = "Démarrer"
 theme_override_font_sizes/font_size = 20
 
