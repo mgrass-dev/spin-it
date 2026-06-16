@@ -12,8 +12,14 @@ static func generate(params: Dictionary) -> Dictionary:
 	var level_id: int = params.get("level_id", 1)
 	var num_combat: int = params.get("max_combat", 4)
 	var num_merchant: int = params.get("max_merchant", 1)
-	var combat_enemy: Dictionary = params.get("combat_enemy", {"name": "Gobelin", "hp": 25, "max_hp": 25})
-	var boss_data: Dictionary = params.get("boss", {"name": "Démon", "hp": 500, "max_hp": 500})
+
+	var enemies: Dictionary = params.get("enemies", {
+		"default_combat": {"name": "Gobelin", "hp": 25, "max_hp": 25, "gold": 4}
+	})
+	var enemy_ids: Array[String] = []
+	for k in enemies:
+		enemy_ids.append(k)
+	var boss_data: Dictionary = params.get("boss", {"name": "Démon", "hp": 500, "max_hp": 500, "gold": 20})
 	var player_data: Dictionary = params.get("player", {"hp": 50, "max_hp": 50})
 
 	var type_list: Array[String] = []
@@ -41,7 +47,7 @@ static func generate(params: Dictionary) -> Dictionary:
 
 	if type_list.is_empty():
 		nodes[0]["connections"].append("boss")
-		return _build_level(level_id, boss_data, player_data, nodes, combat_enemy)
+		return _build_level(level_id, boss_data, player_data, nodes, enemies, enemy_ids)
 
 	var layers: Array[Array] = _build_layers(type_list, rng)
 
@@ -66,12 +72,15 @@ static func generate(params: Dictionary) -> Dictionary:
 		var start_x: float = CENTER_X - spread / 2.0
 		for ni in range(count):
 			var x: float = CENTER_X if count == 1 else start_x + (spread / (count - 1)) * ni
-			nodes.append({
+			var nd: Dictionary = {
 				"id": entries[ni]["id"],
 				"type": entries[ni]["type"],
 				"position": [x, y],
 				"connections": []
-			})
+			}
+			if entries[ni]["type"] == "combat" and not enemy_ids.is_empty():
+				nd["enemy_id"] = enemy_ids[rng.randi_range(0, enemy_ids.size() - 1)]
+			nodes.append(nd)
 
 	for nd in layer_nodes[0]:
 		_connect_nodes(nodes, "start", nd["id"])
@@ -82,7 +91,7 @@ static func generate(params: Dictionary) -> Dictionary:
 	for nd in layer_nodes[num_layers - 1]:
 		_connect_nodes(nodes, nd["id"], "boss")
 
-	return _build_level(level_id, boss_data, player_data, nodes, combat_enemy)
+	return _build_level(level_id, boss_data, player_data, nodes, enemies, enemy_ids)
 
 
 static func _build_layers(type_list: Array[String], rng: RandomNumberGenerator) -> Array[Array]:
@@ -130,13 +139,23 @@ static func _connect_layers(nodes: Array[Dictionary], layer_a: Array[Dictionary]
 				_connect_nodes(nodes, nd_a["id"], target["id"])
 
 
-static func _build_level(level_id: int, boss_data: Dictionary, player_data: Dictionary, nodes: Array[Dictionary], combat_enemy: Dictionary) -> Dictionary:
+static func _build_level(level_id: int, boss_data: Dictionary, player_data: Dictionary, nodes: Array[Dictionary], enemies: Dictionary, enemy_ids: Array[String]) -> Dictionary:
 	return {
 		"id": level_id,
 		"boss": boss_data,
 		"player": player_data,
 		"nodes": nodes,
-		"enemies": {
-			"default_combat": combat_enemy
-		}
+		"enemies": enemies,
 	}
+
+static func get_enemy_id_for_node(node_data: Dictionary) -> String:
+	return node_data.get("enemy_id", "")
+
+static func get_enemy_data(level_data: Dictionary, node_data: Dictionary) -> Dictionary:
+	var enemy_id := get_enemy_id_for_node(node_data)
+	if enemy_id.is_empty():
+		var enemies: Dictionary = level_data.get("enemies", {})
+		if enemies.is_empty():
+			return {"name": "Unknown", "hp": 25, "max_hp": 25, "gold": 0}
+		enemy_id = enemies.keys()[0]
+	return level_data.get("enemies", {}).get(enemy_id, {})

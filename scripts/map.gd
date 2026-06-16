@@ -15,17 +15,39 @@ const _NODE_ICONS := {
 }
 
 static func _level_params(level_id: int) -> Dictionary:
+	var path := "res://data/levels/level_%d.json" % level_id
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file:
+		var json := JSON.new()
+		json.parse(file.get_as_text())
+		file.close()
+		var data := json.get_data()
+		if data is Dictionary and data.get("nodes") != null:
+			return {
+				"id": level_id,
+				"boss": data.get("boss", {}),
+				"player": data.get("player", {}),
+				"nodes": data.get("nodes", []),
+				"enemies": data.get("enemies", {}),
+			}
+	return _fallback_params(level_id)
+
+static func _fallback_params(level_id: int) -> Dictionary:
 	match level_id:
 		1:
 			return {
 				"max_combat": 4,
 				"max_merchant": 1,
-				"combat_enemy": {"name": "Gobelin", "hp": 100, "max_hp": 100},
-				"boss": {"name": "Démon", "hp": 500, "max_hp": 500},
+				"enemies": {
+					"slime": {"name": "Slime", "hp": 18, "max_hp": 18, "gold": 1},
+					"goblin": {"name": "Gobelin", "hp": 25, "max_hp": 25, "gold": 4},
+					"orc": {"name": "Orc", "hp": 100, "max_hp": 100, "gold": 12},
+				},
+				"boss": {"name": "Démon", "hp": 500, "max_hp": 500, "gold": 20},
 				"player": {"hp": 50, "max_hp": 50},
 			}
 		_:
-			return _level_params(1)
+			return _fallback_params(1)
 
 @onready var paths_layer: Node2D = $PathsLayer
 @onready var nodes_layer: Node2D = $NodesLayer
@@ -63,9 +85,12 @@ func _fit_info_panel() -> void:
 func _load_level(level_id: int) -> void:
 	if GameState.level_data.is_empty():
 		var params: Dictionary = _level_params(level_id)
-		params["level_id"] = level_id
-		params["seed"] = GameState.level_seed
-		GameState.level_data = LevelGenerator.generate(params)
+		if params.has("nodes"):
+			GameState.level_data = params
+		else:
+			params["level_id"] = level_id
+			params["seed"] = GameState.level_seed
+			GameState.level_data = LevelGenerator.generate(params)
 	level_data = GameState.level_data
 	_build_map()
 
@@ -151,13 +176,19 @@ func _on_node_selected(mn: MapNode) -> void:
 	selected_node = mn
 	selected_node.set_selected(true)
 	info_panel.visible = true
-	start_button.visible = mn.node_type != "start" and mn.node_type != "merchant"
+	if mn.node_type == "merchant":
+		start_button.visible = true
+		start_button.text = "Visit"
+	else:
+		start_button.visible = mn.node_type != "start"
+		start_button.text = "Start"
 
 	var icon_tex: Texture2D = load(_NODE_ICONS.get(mn.node_type, _NODE_ICONS["combat"]))
 
 	match mn.node_type:
 		"combat":
-			var e: Dictionary = level_data.get("enemies", {}).get("default_combat", {})
+			var node_data := _find_node_data(mn.node_id)
+			var e: Dictionary = LevelGenerator.get_enemy_data(level_data, node_data)
 			mob_hp_bar.setup(icon_tex, e.get("name", "Unknown"), e.get("hp", 0), e.get("max_hp", 0))
 		"boss":
 			var b: Dictionary = level_data.get("boss", {})
@@ -170,5 +201,23 @@ func _on_node_selected(mn: MapNode) -> void:
 func _on_start_pressed() -> void:
 	if selected_node == null:
 		return
+	if selected_node.node_type == "merchant":
+		_open_merchant()
+		return
 	GameState.start_combat(selected_node.node_id, level_data)
 	get_tree().change_scene_to_file("res://scenes/combat.tscn")
+
+func _open_merchant() -> void:
+	var reward = load("res://scripts/reward_screen.gd").new()
+	reward.is_merchant_mode = true
+	add_child(reward)
+	reward.closed.connect(_on_merchant_closed)
+
+func _on_merchant_closed() -> void:
+	if selected_node:
+		GameState.completed_nodes.append(selected_node.node_id)
+		GameState.save_game()
+		selected_node.set_selected(false)
+		selected_node = null
+		info_panel.visible = false
+	_apply_state()

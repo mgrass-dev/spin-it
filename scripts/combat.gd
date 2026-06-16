@@ -40,6 +40,8 @@ var _enemy_throws_remaining: int = THROWS_PER_TURN
 var _player_accumulated_damage: int = 0
 var _enemy_accumulated_damage: int = 0
 
+var _player_throws_data: Array[Dictionary] = []
+
 var _enemy_section_overlay: ColorRect
 var _player_section_overlay: ColorRect
 var _player_log: CombatLogPanel
@@ -83,7 +85,6 @@ func _setup_hp_bars() -> void:
 	_player_hp_bar.setup(null, "", GameState.player_hp, GameState.player_max_hp)
 
 func _setup_section_overlays() -> void:
-	# Layer 2 sits above the Node2D world but below the HP-bar UILayer (5)
 	var layer := CanvasLayer.new()
 	layer.layer = 2
 	add_child(layer)
@@ -144,6 +145,7 @@ func _start_player_turn() -> void:
 	_current_turn = Turn.PLAYER
 	_player_throws_remaining = THROWS_PER_TURN
 	_player_accumulated_damage = 0
+	_player_throws_data.clear()
 	_enemy_section_overlay.visible = true
 	_player_section_overlay.visible = false
 	ball.process_mode = Node.PROCESS_MODE_INHERIT
@@ -232,8 +234,6 @@ func _launch_ball_on_wheel() -> void:
 		return
 
 	var target_r: float = float(spin_info["target_r"])
-	# Offset so ball ends at world angle -PI/2 (pointer/top) when
-	# spinning_part reaches target_r (winning wheel_item position).
 	_ball_offset_angle = -PI / 2.0 - target_r
 	_ball_approach_start = ball.global_position
 	_ball_approach_time = BALL_APPROACH_DURATION
@@ -254,15 +254,19 @@ func _on_spin_completed(item: WheelItem) -> void:
 	ball.return_to_slot()
 	ball.visible = true
 
-	_player_accumulated_damage += item.modifier
+	var value := item.modifier
+	var color_str := "black" if item.slot_color == WheelItem.SlotColor.BLACK else "red"
+
+	_player_throws_data.append({"value": value, "slot_color": color_str})
+	_player_accumulated_damage += value
 	_player_throws_remaining -= 1
 	_update_throws_counter()
 
-	damage_display.show_damage(item.modifier)
+	damage_display.show_damage(value)
 
 	var throw_num: int = THROWS_PER_TURN - _player_throws_remaining
 	_add_player_log("Throw %d: %d (total: %d)" % [
-		throw_num, item.modifier, _player_accumulated_damage
+		throw_num, value, _player_accumulated_damage
 	])
 
 	if _player_throws_remaining <= 0:
@@ -296,14 +300,24 @@ func _on_enemy_spin_completed(item: WheelItem) -> void:
 # ─── Damage resolution ───────────────────────────────────────────────────────
 
 func _apply_player_damage(amount: int) -> void:
-	GameState.enemy_hp = maxi(0, GameState.enemy_hp - amount)
+	var mult := Modifier.compute_multiplier(_player_throws_data)
+	var final_damage := roundi(amount * mult)
+
+	GameState.enemy_hp = maxi(0, GameState.enemy_hp - final_damage)
 	_enemy_hp_bar.update_hp(GameState.enemy_hp, GameState.enemy_max_hp)
-	_add_player_log("Total: %d damage (enemy: %d HP)" % [amount, GameState.enemy_hp])
+
+	var log_line: String = "Total: %d damage" % final_damage
+	if mult > 1.0:
+		log_line += " (x%.1f mod)" % mult
+	log_line += " (enemy: %d HP)" % GameState.enemy_hp
+	_add_player_log(log_line)
+
 	if GameState.enemy_hp <= 0:
 		_combat_over = true
+		GameState.add_gold(GameState.enemy_gold)
 		GameState.complete_current_combat()
-		_add_player_log("Victory!")
-		_show_end_screen()
+		_add_player_log("Victory! +%d gold" % GameState.enemy_gold)
+		_show_reward_screen()
 	else:
 		_start_enemy_turn()
 
@@ -319,7 +333,12 @@ func _apply_enemy_damage(amount: int) -> void:
 	else:
 		_start_player_turn()
 
-# ─── End screen ──────────────────────────────────────────────────────────────
+# ─── End / Reward screen ─────────────────────────────────────────────────────
+
+func _show_reward_screen() -> void:
+	var reward = load("res://scripts/reward_screen.gd").new()
+	add_child(reward)
+	reward.closed.connect(_show_end_screen)
 
 func _show_end_screen() -> void:
 	var canvas := CanvasLayer.new()

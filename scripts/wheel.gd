@@ -40,8 +40,27 @@ func _setup_halo() -> void:
 
 func _setup_items() -> void:
 	var angle_step: float = TAU / item_count
-	var values: Array = Array(range(1, item_count + 1))
-	values.shuffle()
+
+	var equipped_by_pos: Dictionary = {}
+	var used_positions: Array[int] = []
+	for eq in GameState.equipped_wheel_slots:
+		var p: int = eq.get("position", -1)
+		if p >= 0 and p < item_count:
+			equipped_by_pos[p] = eq
+			used_positions.append(p)
+
+	var unplaced: Array[Dictionary] = []
+	for eq in GameState.equipped_wheel_slots:
+		var p: int = eq.get("position", -1)
+		if p < 0 or p >= item_count:
+			unplaced.append(eq)
+
+	for eq in unplaced:
+		var p: int = randi() % item_count
+		while p in used_positions:
+			p = randi() % item_count
+		equipped_by_pos[p] = eq
+		used_positions.append(p)
 
 	for i in item_count:
 		var item: WheelItem = WHEEL_ITEM_SCENE.instantiate()
@@ -49,9 +68,43 @@ func _setup_items() -> void:
 		item.position = Vector2(cos(angle), sin(angle)) * item_radius
 		item.rotation = angle + PI / 2
 		item.z_index = 1
-		item.slot_color = WheelItem.SlotColor.BLACK if i % 2 == 0 else WheelItem.SlotColor.RED
-		item.modifier = values[i]
+		if i in equipped_by_pos:
+			var eq: Dictionary = equipped_by_pos[i]
+			item.slot_color = WheelItem.SlotColor.BLACK if eq.get("slot_color", "black") == "black" else WheelItem.SlotColor.RED
+			item.modifier = eq.get("value", 1)
+		else:
+			item.slot_color = WheelItem.SlotColor.BLACK if i % 2 == 0 else WheelItem.SlotColor.RED
+			item.modifier = (i % 10) + 1
 		_spinning_part.add_child(item)
+
+func get_wheel_items() -> Array[WheelItem]:
+	var result: Array[WheelItem] = []
+	for child in _spinning_part.get_children():
+		if child is WheelItem:
+			result.append(child)
+	return result
+
+func get_wheel_item_data() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for child in _spinning_part.get_children():
+		if child is WheelItem:
+			result.append({
+				"index": result.size(),
+				"value": child.modifier,
+				"slot_color": "black" if child.slot_color == WheelItem.SlotColor.BLACK else "red",
+				"position": child.position,
+				"rotation": child.rotation,
+			})
+	return result
+
+func replace_slot(index: int, value: int, slot_color_str: String) -> void:
+	var items := get_wheel_items()
+	if index < 0 or index >= items.size():
+		return
+	var item: WheelItem = items[index]
+	var color_enum: WheelItem.SlotColor = WheelItem.SlotColor.BLACK if slot_color_str == "black" else WheelItem.SlotColor.RED
+	item.slot_color = color_enum
+	item.modifier = value
 
 func start_spinning() -> void:
 	if _tween and _tween.is_valid():
@@ -69,10 +122,7 @@ func stop_on_random_item() -> Dictionary:
 	if _tween and _tween.is_valid():
 		_tween.kill()
 
-	var items: Array = []
-	for child in _spinning_part.get_children():
-		if child is WheelItem:
-			items.append(child)
+	var items: Array = get_wheel_items()
 	if items.is_empty():
 		return {}
 
@@ -81,13 +131,10 @@ func stop_on_random_item() -> Dictionary:
 
 	var base: float = -PI / 2.0 - item_angle
 	var current_r: float = _spinning_part.rotation
-	# Ensure at least 3 full extra rotations before stopping
 	var n: int = ceili((current_r + 3.0 * TAU - base) / TAU)
 	var target_r: float = base + n * TAU
 	var distance: float = target_r - current_r
 
-	# Match initial tween velocity to current spin speed to avoid acceleration jump.
-	# For CUBIC EASE_OUT the initial velocity = 3 * distance / duration.
 	var computed_duration: float
 	if current_speed > 0.1:
 		computed_duration = clamp(3.0 * distance / current_speed, 3.0, 10.0)

@@ -3,7 +3,8 @@
 	"boss": {
 		"name": "Démon",
 		"hp": 500,
-		"max_hp": 500
+		"max_hp": 500,
+		"gold": 20
 	},
 	"player": {
 		"hp": 50,
@@ -19,12 +20,14 @@
 		{
 			"id": "c1",
 			"type": "combat",
+			"enemy_id": "slime",
 			"position": [515, 490],
 			"connections": ["c_left", "merchant"]
 		},
 		{
 			"id": "c_left",
 			"type": "combat",
+			"enemy_id": "goblin",
 			"position": [360, 385],
 			"connections": ["c_ul"]
 		},
@@ -37,12 +40,14 @@
 		{
 			"id": "c_ul",
 			"type": "combat",
+			"enemy_id": "orc",
 			"position": [390, 265],
 			"connections": ["boss"]
 		},
 		{
 			"id": "c_ur",
 			"type": "combat",
+			"enemy_id": "goblin",
 			"position": [685, 265],
 			"connections": ["boss"]
 		},
@@ -54,10 +59,23 @@
 		}
 	],
 	"enemies": {
-		"default_combat": {
+		"slime": {
+			"name": "Slime",
+			"hp": 18,
+			"max_hp": 18,
+			"gold": 3
+		},
+		"goblin": {
 			"name": "Gobelin",
 			"hp": 25,
-			"max_hp": 25
+			"max_hp": 25,
+			"gold": 4
+		},
+		"orc": {
+			"name": "Orc",
+			"hp": 100,
+			"max_hp": 100,
+			"gold": 12
 		}
 	}
 }
