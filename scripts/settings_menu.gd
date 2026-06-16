@@ -23,6 +23,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and menu_panel.visible:
 		_on_settings_pressed()
 
+func open() -> void:
+	menu_panel.visible = true
+
 func _on_display_mode_selected(index: int) -> void:
 	match index:
 		0: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
