@@ -9,6 +9,7 @@ const OVERLAY_SPLIT_Y := 315
 const WHEEL_VISUAL_RADIUS := 250.0
 const BALL_APPROACH_DURATION := 0.5
 const ENEMY_SPIN_DELAY := 2.0
+const THROWS_PER_TURN := 3
 
 const PLAYER_LOG_POS := Vector2(8, 510)
 const PLAYER_LOG_SIZE := Vector2(250, 200)
@@ -34,11 +35,17 @@ var _combat_over := false
 var _current_turn: Turn = Turn.PLAYER
 var _turn_number: int = 1
 
+var _player_throws_remaining: int = THROWS_PER_TURN
+var _enemy_throws_remaining: int = THROWS_PER_TURN
+var _player_accumulated_damage: int = 0
+var _enemy_accumulated_damage: int = 0
+
 var _enemy_section_overlay: ColorRect
 var _player_section_overlay: ColorRect
 var _player_log: CombatLogPanel
 var _enemy_log: CombatLogPanel
 var _enemy_ball: Sprite2D
+var _throws_label: Label
 
 func _ready() -> void:
 	if not OS.has_feature("editor"):
@@ -49,12 +56,12 @@ func _ready() -> void:
 	ball.released.connect(_on_ball_released)
 	player_wheel.spin_completed.connect(_on_spin_completed)
 	enemy_wheel.spin_completed.connect(_on_enemy_spin_completed)
-	damage_display.damage_applied.connect(_on_damage_applied)
 
 	_setup_hp_bars()
 	_setup_section_overlays()
 	_setup_logs()
 	_setup_enemy_ball()
+	_setup_throws_label()
 	_start_player_turn()
 
 # ─── Setup ───────────────────────────────────────────────────────────────────
@@ -103,6 +110,15 @@ func _setup_enemy_ball() -> void:
 	_enemy_ball.visible = false
 	add_child(_enemy_ball)
 
+func _setup_throws_label() -> void:
+	_throws_label = Label.new()
+	_throws_label.position = Vector2(920, 670)
+	_throws_label.size = Vector2(72, 28)
+	_throws_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_throws_label.add_theme_font_size_override("font_size", 24)
+	_throws_label.add_theme_color_override("font_color", Color(1, 1, 1))
+	add_child(_throws_label)
+
 func _setup_logs() -> void:
 	_player_log = CombatLogPanel.new()
 	_player_log.position = PLAYER_LOG_POS
@@ -126,16 +142,29 @@ func _add_enemy_log(text: String) -> void:
 
 func _start_player_turn() -> void:
 	_current_turn = Turn.PLAYER
+	_player_throws_remaining = THROWS_PER_TURN
+	_player_accumulated_damage = 0
 	_enemy_section_overlay.visible = true
 	_player_section_overlay.visible = false
+	ball.process_mode = Node.PROCESS_MODE_INHERIT
+	ball.return_to_slot()
+	ball.visible = true
+	_update_throws_counter()
 	_add_player_log("— Turn %d: your turn —" % _turn_number)
 
 func _start_enemy_turn() -> void:
 	_current_turn = Turn.ENEMY
+	_enemy_throws_remaining = THROWS_PER_TURN
+	_enemy_accumulated_damage = 0
 	_enemy_section_overlay.visible = false
 	_player_section_overlay.visible = true
+	_update_throws_counter()
 	_add_enemy_log("— Turn %d: enemy's turn —" % _turn_number)
+	_do_enemy_throw()
 
+func _do_enemy_throw() -> void:
+	if _combat_over:
+		return
 	_enemy_ball.visible = true
 	enemy_wheel.start_spinning()
 	await get_tree().create_timer(ENEMY_SPIN_DELAY).timeout
@@ -185,7 +214,7 @@ func _process(delta: float) -> void:
 			ball.global_position = target_pos
 
 func _on_ball_released(_world_pos: Vector2) -> void:
-	if _combat_over or _current_turn == Turn.ENEMY:
+	if _combat_over or _current_turn == Turn.ENEMY or _player_throws_remaining <= 0:
 		ball.return_to_slot()
 		return
 	if _ball_over_wheel:
@@ -212,32 +241,64 @@ func _launch_ball_on_wheel() -> void:
 	ball.start_rolling()
 	_ball_rolling = true
 
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+func _update_throws_counter() -> void:
+	var remaining: int = _player_throws_remaining if _current_turn == Turn.PLAYER else _enemy_throws_remaining
+	_throws_label.text = str(remaining)
+
 # ─── Spin callbacks ──────────────────────────────────────────────────────────
 
 func _on_spin_completed(item: WheelItem) -> void:
 	_ball_rolling = false
-	ball.visible = false
+	ball.return_to_slot()
+	ball.visible = true
+
+	_player_accumulated_damage += item.modifier
+	_player_throws_remaining -= 1
+	_update_throws_counter()
+
 	damage_display.show_damage(item.modifier)
+
+	var throw_num: int = THROWS_PER_TURN - _player_throws_remaining
+	_add_player_log("Throw %d: %d (total: %d)" % [
+		throw_num, item.modifier, _player_accumulated_damage
+	])
+
+	if _player_throws_remaining <= 0:
+		ball.process_mode = Node.PROCESS_MODE_DISABLED
+		await damage_display.damage_applied
+		_apply_player_damage(_player_accumulated_damage)
 
 func _on_enemy_spin_completed(item: WheelItem) -> void:
 	if _combat_over:
 		return
 	_enemy_ball.visible = false
+
+	_enemy_accumulated_damage += item.modifier
+	_enemy_throws_remaining -= 1
+	_update_throws_counter()
+
 	damage_display.show_damage(item.modifier)
 
-# ─── Damage resolution ───────────────────────────────────────────────────────
+	var throw_num: int = THROWS_PER_TURN - _enemy_throws_remaining
+	_add_enemy_log("Throw %d: %d (total: %d)" % [
+		throw_num, item.modifier, _enemy_accumulated_damage
+	])
 
-func _on_damage_applied(amount: int) -> void:
-	match _current_turn:
-		Turn.PLAYER: _apply_player_damage(amount)
-		Turn.ENEMY:  _apply_enemy_damage(amount)
+	if _enemy_throws_remaining > 0:
+		await damage_display.damage_applied
+		_do_enemy_throw()
+	else:
+		await damage_display.damage_applied
+		_apply_enemy_damage(_enemy_accumulated_damage)
+
+# ─── Damage resolution ───────────────────────────────────────────────────────
 
 func _apply_player_damage(amount: int) -> void:
 	GameState.enemy_hp = maxi(0, GameState.enemy_hp - amount)
 	_enemy_hp_bar.update_hp(GameState.enemy_hp, GameState.enemy_max_hp)
-	ball.return_to_slot()
-	ball.visible = true
-	_add_player_log("You deal %d damage  (enemy: %d HP)" % [amount, GameState.enemy_hp])
+	_add_player_log("Total: %d damage (enemy: %d HP)" % [amount, GameState.enemy_hp])
 	if GameState.enemy_hp <= 0:
 		_combat_over = true
 		GameState.complete_current_combat()
@@ -249,7 +310,7 @@ func _apply_player_damage(amount: int) -> void:
 func _apply_enemy_damage(amount: int) -> void:
 	GameState.player_hp = maxi(0, GameState.player_hp - amount)
 	_player_hp_bar.update_hp(GameState.player_hp, GameState.player_max_hp)
-	_add_enemy_log("Enemy deals %d damage  (you: %d HP)" % [amount, GameState.player_hp])
+	_add_enemy_log("Total: %d damage (you: %d HP)" % [amount, GameState.player_hp])
 	_turn_number += 1
 	if GameState.player_hp <= 0:
 		_combat_over = true

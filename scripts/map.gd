@@ -20,7 +20,7 @@ static func _level_params(level_id: int) -> Dictionary:
 			return {
 				"max_combat": 4,
 				"max_merchant": 1,
-				"combat_enemy": {"name": "Gobelin", "hp": 25, "max_hp": 25},
+				"combat_enemy": {"name": "Gobelin", "hp": 100, "max_hp": 100},
 				"boss": {"name": "Démon", "hp": 500, "max_hp": 500},
 				"player": {"hp": 50, "max_hp": 50},
 			}
