@@ -1,6 +1,5 @@
 extends Node2D
 
-const LEVEL_PATH := "res://data/levels/level_%d.json"
 const MAP_NODE_SCENE := preload("res://scenes/map_node.tscn")
 
 const PATH_COLOR := Color(0.78, 0.55, 0.18)
@@ -14,6 +13,19 @@ const _NODE_ICONS := {
 	"merchant": "res://sprites/map/icon_merchant.png",
 	"start": "res://sprites/map/icon_start.png",
 }
+
+static func _level_params(level_id: int) -> Dictionary:
+	match level_id:
+		1:
+			return {
+				"max_combat": 4,
+				"max_merchant": 1,
+				"combat_enemy": {"name": "Gobelin", "hp": 25, "max_hp": 25},
+				"boss": {"name": "Démon", "hp": 500, "max_hp": 500},
+				"player": {"hp": 50, "max_hp": 50},
+			}
+		_:
+			return _level_params(1)
 
 @onready var paths_layer: Node2D = $PathsLayer
 @onready var nodes_layer: Node2D = $NodesLayer
@@ -48,15 +60,10 @@ func _fit_info_panel() -> void:
 	info_panel.offset_bottom = br.y
 
 func _load_level(level_id: int) -> void:
-	var path := LEVEL_PATH % level_id
-	var file := FileAccess.open(path, FileAccess.READ)
-	if not file:
-		push_error("Cannot load level: " + path)
-		return
-	var json := JSON.new()
-	json.parse(file.get_as_text())
-	level_data = json.get_data()
-	file.close()
+	var params: Dictionary = _level_params(level_id)
+	params["level_id"] = level_id
+	params["seed"] = GameState.level_seed
+	level_data = LevelGenerator.generate(params)
 	_build_map()
 
 func _build_map() -> void:
@@ -138,7 +145,7 @@ func _find_node_data(id: String) -> Dictionary:
 func _on_node_selected(mn: MapNode) -> void:
 	selected_node = mn
 	info_panel.visible = true
-	start_button.visible = mn.node_type != "start"
+	start_button.visible = mn.node_type != "start" and mn.node_type != "merchant"
 
 	var icon_tex: Texture2D = load(_NODE_ICONS.get(mn.node_type, _NODE_ICONS["combat"]))
 
