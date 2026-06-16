@@ -17,20 +17,35 @@ const _NODE_ICONS := {
 
 @onready var paths_layer: Node2D = $PathsLayer
 @onready var nodes_layer: Node2D = $NodesLayer
+@onready var legend_panel: Sprite2D = $LegendPanel
 @onready var boss_hp_bar: HPBar = $UILayer/BossHPBar
 @onready var info_panel: Control = $UILayer/InfoPanel
 @onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/MobHPBar
 @onready var start_button: Button = $UILayer/InfoPanel/StartButton
+
+# Pixel bounds of the brown panel inside the 1920×1080 map_legende.png sprite
+const _BROWN_RECT := Rect2(1600, 363, 290, 426)
 
 var level_data: Dictionary = {}
 var map_nodes: Dictionary = {}
 var selected_node: MapNode = null
 
 func _ready() -> void:
+	_fit_info_panel()
 	info_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	info_panel.visible = false
 	start_button.pressed.connect(_on_start_pressed)
 	_load_level(GameState.current_level)
+
+func _fit_info_panel() -> void:
+	var xform := legend_panel.get_global_transform()
+	var center := Vector2(960, 540)  # half of 1920×1080
+	var tl := xform * (_BROWN_RECT.position - center)
+	var br := xform * (_BROWN_RECT.end - center)
+	info_panel.offset_left   = tl.x
+	info_panel.offset_top    = tl.y
+	info_panel.offset_right  = br.x
+	info_panel.offset_bottom = br.y
 
 func _load_level(level_id: int) -> void:
 	var path := LEVEL_PATH % level_id
