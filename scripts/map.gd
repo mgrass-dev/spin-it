@@ -60,10 +60,12 @@ func _fit_info_panel() -> void:
 	info_panel.offset_bottom = br.y
 
 func _load_level(level_id: int) -> void:
-	var params: Dictionary = _level_params(level_id)
-	params["level_id"] = level_id
-	params["seed"] = GameState.level_seed
-	level_data = LevelGenerator.generate(params)
+	if GameState.level_data.is_empty():
+		var params: Dictionary = _level_params(level_id)
+		params["level_id"] = level_id
+		params["seed"] = GameState.level_seed
+		GameState.level_data = LevelGenerator.generate(params)
+	level_data = GameState.level_data
 	_build_map()
 
 func _build_map() -> void:

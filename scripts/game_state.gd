@@ -4,6 +4,7 @@ const SAVE_PATH := "user://save.json"
 
 var current_level: int = 1
 var level_seed: int = 0
+var level_data: Dictionary = {}
 var completed_nodes: Array[String] = []
 var current_combat_node_id: String = ""
 
@@ -48,6 +49,7 @@ func save_game() -> void:
 	var data := {
 		"current_level": current_level,
 		"level_seed": level_seed,
+		"level_data": level_data,
 		"completed_nodes": completed_nodes,
 		"player_hp": player_hp,
 		"player_max_hp": player_max_hp,
@@ -67,6 +69,7 @@ func load_game() -> void:
 	var data: Dictionary = json.get_data()
 	current_level = data.get("current_level", 1)
 	level_seed = data.get("level_seed", 0)
+	level_data = data.get("level_data", {})
 	completed_nodes.clear()
 	for s in data.get("completed_nodes", []):
 		completed_nodes.append(str(s))
@@ -76,6 +79,7 @@ func load_game() -> void:
 func reset_game() -> void:
 	current_level = 1
 	level_seed = randi()
+	level_data = {}
 	completed_nodes = []
 	current_combat_node_id = ""
 	player_hp = 0
