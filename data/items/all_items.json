@@ -1,0 +1,114 @@
+[
+	{
+		"id": "mod_sum_x2",
+		"name": "Double Sum",
+		"description": "Multiplies the total of your 3 throws by 2.",
+		"type": "modifier",
+		"icon_path": "res://sprites/roue/slot_red.png",
+		"rarity": "légendaire",
+		"cost": 10,
+		"effects": {
+			"modifier_type": "sum_x2"
+		}
+	},
+	{
+		"id": "mod_black_x2",
+		"name": "Black Double",
+		"description": "If all 3 throws land on black slots, total is multiplied by 2.",
+		"type": "modifier",
+		"icon_path": "res://sprites/roue/slot_black.png",
+		"rarity": "rare",
+		"cost": 6,
+		"effects": {
+			"modifier_type": "all_black_x2"
+		}
+	},
+	{
+		"id": "mod_red_x2",
+		"name": "Red Double",
+		"description": "If all 3 throws land on red slots, total is multiplied by 2.",
+		"type": "modifier",
+		"icon_path": "res://sprites/roue/slot_red.png",
+		"rarity": "rare",
+		"cost": 6,
+		"effects": {
+			"modifier_type": "all_red_x2"
+		}
+	},
+	{
+		"id": "mod_even_x2",
+		"name": "Even Double",
+		"description": "If all 3 throws are even numbers, total is multiplied by 2.",
+		"type": "modifier",
+		"icon_path": "res://sprites/roue/slot_black.png",
+		"rarity": "épique",
+		"cost": 8,
+		"effects": {
+			"modifier_type": "all_even_x2"
+		}
+	},
+	{
+		"id": "mod_odd_x2",
+		"name": "Odd Double",
+		"description": "If all 3 throws are odd numbers, total is multiplied by 2.",
+		"type": "modifier",
+		"icon_path": "res://sprites/roue/slot_red.png",
+		"rarity": "épique",
+		"cost": 8,
+		"effects": {
+			"modifier_type": "all_odd_x2"
+		}
+	},
+	{
+		"id": "wheel_crit",
+		"name": "Crit Slot",
+		"description": "A red slot dealing 20 damage.",
+		"type": "wheel_item",
+		"icon_path": "res://sprites/roue/slot_red.png",
+		"rarity": "rare",
+		"cost": 5,
+		"effects": {
+			"value": 20,
+			"slot_color": "red"
+		}
+	},
+	{
+		"id": "wheel_black_18",
+		"name": "Power Black Slot",
+		"description": "A black slot dealing 18 damage.",
+		"type": "wheel_item",
+		"icon_path": "res://sprites/roue/slot_black.png",
+		"rarity": "commun",
+		"cost": 3,
+		"effects": {
+			"value": 18,
+			"slot_color": "black"
+		}
+	},
+	{
+		"id": "wheel_red_15",
+		"name": "Steady Red Slot",
+		"description": "A red slot dealing 15 damage.",
+		"type": "wheel_item",
+		"icon_path": "res://sprites/roue/slot_red.png",
+		"rarity": "commun",
+		"cost": 3,
+		"effects": {
+			"value": 15,
+			"slot_color": "red"
+		}
+	},
+	{
+		"id": "wheel_lucky_7",
+		"name": "Lucky Slot",
+		"description": "A black slot dealing 7 damage.",
+		"type": "wheel_item",
+		"icon_path": "res://sprites/roue/slot_black.png",
+		"rarity": "commun",
+		"cost": 2,
+		"effects": {
+			"value": 7,
+			"slot_color": "black"
+		}
+	}
+]
