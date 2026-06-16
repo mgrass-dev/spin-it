@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkebnr0474l07"
-path="res://.godot/imported/fond_ennemi.png-8cbced1eae908595037c1e11abeecadd.ctex"
+path="res://.godot/imported/enemy_bg.png-cb7f42b22cb8500b8baaf1be03e87090.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://sprites/background/enemy_bg.png"
-dest_files=["res://.godot/imported/fond_ennemi.png-8cbced1eae908595037c1e11abeecadd.ctex"]
+dest_files=["res://.godot/imported/enemy_bg.png-cb7f42b22cb8500b8baaf1be03e87090.ctex"]
 
 [params]
 

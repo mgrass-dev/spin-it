@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bv11o5rg4hb4q"
-path="res://.godot/imported/icone_boss.png-16ee3c1a63dcdaf5f77035a3954d33a2.ctex"
+path="res://.godot/imported/icon_boss.png-b2ff5fa03b9f59a71a1e6c7a165c1218.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://sprites/map/icon_boss.png"
-dest_files=["res://.godot/imported/icone_boss.png-16ee3c1a63dcdaf5f77035a3954d33a2.ctex"]
+dest_files=["res://.godot/imported/icon_boss.png-b2ff5fa03b9f59a71a1e6c7a165c1218.ctex"]
 
 [params]
 

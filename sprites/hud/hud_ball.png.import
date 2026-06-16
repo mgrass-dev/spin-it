@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://crvcgeqwk3yuy"
-path="res://.godot/imported/hud_bille.png-9fecadc24fd41349af904ed52f7504cb.ctex"
+path="res://.godot/imported/hud_ball.png-1c52e86f26d873881e73f4bbe0cbf120.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://sprites/hud/hud_ball.png"
-dest_files=["res://.godot/imported/hud_bille.png-9fecadc24fd41349af904ed52f7504cb.ctex"]
+dest_files=["res://.godot/imported/hud_ball.png-1c52e86f26d873881e73f4bbe0cbf120.ctex"]
 
 [params]
 

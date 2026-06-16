@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cvt7p5inj0fo"
-path="res://.godot/imported/map_legende.png-a52e91b23ab863f7c4234720d651aada.ctex"
+path="res://.godot/imported/map_legend.png-a702d28c7c550add6009c36b6205af94.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://sprites/map/map_legend.png"
-dest_files=["res://.godot/imported/map_legende.png-a52e91b23ab863f7c4234720d651aada.ctex"]
+dest_files=["res://.godot/imported/map_legend.png-a702d28c7c550add6009c36b6205af94.ctex"]
 
 [params]
 

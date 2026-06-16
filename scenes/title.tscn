@@ -9,21 +9,25 @@ script = ExtResource("1_title")
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Background" type="ColorRect" parent="CanvasLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 color = Color(0.06, 0.04, 0.08)
-offset_right = 1280.0
-offset_bottom = 720.0
 
 [node name="TitleLabel" type="Label" parent="CanvasLayer"]
-text = "Spin it"
+layout_mode = 0
 offset_left = 0.0
 offset_top = 130.0
 offset_right = 1280.0
 offset_bottom = 240.0
+text = "Spin it"
 horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.92, 0.78, 0.25)
 theme_override_font_sizes/font_size = 90
 
 [node name="ButtonVBox" type="VBoxContainer" parent="CanvasLayer"]
+layout_mode = 0
 offset_left = 490.0
 offset_top = 310.0
 offset_right = 790.0
@@ -31,16 +35,19 @@ offset_bottom = 610.0
 theme_override_constants/separation = 18
 
 [node name="ContinueButton" type="Button" parent="CanvasLayer/ButtonVBox"]
+layout_mode = 2
 custom_minimum_size = Vector2(300, 56)
 theme_override_font_sizes/font_size = 22
 text = "Continue"
 
 [node name="NewGameButton" type="Button" parent="CanvasLayer/ButtonVBox"]
+layout_mode = 2
 custom_minimum_size = Vector2(300, 56)
 theme_override_font_sizes/font_size = 22
 text = "New Game"
 
 [node name="SettingsButton" type="Button" parent="CanvasLayer/ButtonVBox"]
+layout_mode = 2
 custom_minimum_size = Vector2(300, 56)
 theme_override_font_sizes/font_size = 22
 text = "Settings  ⚙"

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ddyqso6d2sm6k"
-path="res://.godot/imported/bille_blanche.png-9dc92163544a8c1340cb3fa7a0501606.ctex"
+path="res://.godot/imported/ball_white.png-3e1a4296c7f32c7d40b1c1b97913d2da.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://sprites/balls/ball_white.png"
-dest_files=["res://.godot/imported/bille_blanche.png-9dc92163544a8c1340cb3fa7a0501606.ctex"]
+dest_files=["res://.godot/imported/ball_white.png-3e1a4296c7f32c7d40b1c1b97913d2da.ctex"]
 
 [params]
 

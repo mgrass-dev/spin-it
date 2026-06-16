@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://da8cwba7ra0xp"
-path="res://.godot/imported/icone_marchand.png-264995363d0579764f7a93b3aac60cb4.ctex"
+path="res://.godot/imported/icon_merchant.png-f2fe040a697a8ed9d2bcf93125d4f6af.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://sprites/map/icon_merchant.png"
-dest_files=["res://.godot/imported/icone_marchand.png-264995363d0579764f7a93b3aac60cb4.ctex"]
+dest_files=["res://.godot/imported/icon_merchant.png-f2fe040a697a8ed9d2bcf93125d4f6af.ctex"]
 
 [params]
 

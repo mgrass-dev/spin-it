@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cxdu4oigagsqr"
-path="res://.godot/imported/roue_fond.png-5aa319be5d738aa200d611e50fbf7cf2.ctex"
+path="res://.godot/imported/wheel_bg.png-0e1c001a135dc6c304964cc121b4c467.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://sprites/roue/wheel_bg.png"
-dest_files=["res://.godot/imported/roue_fond.png-5aa319be5d738aa200d611e50fbf7cf2.ctex"]
+dest_files=["res://.godot/imported/wheel_bg.png-0e1c001a135dc6c304964cc121b4c467.ctex"]
 
 [params]
 

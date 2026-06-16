@@ -8,10 +8,6 @@
 
 config_version=5
 
-[editor_plugins]
-
-enabled=PackedStringArray("Gut")
-
 [application]
 
 config/name="Spin it"
@@ -29,6 +25,10 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/mode=2
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("Gut")
 
 [physics]
 
