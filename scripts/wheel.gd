@@ -62,6 +62,9 @@ func _setup_items() -> void:
 		equipped_by_pos[p] = eq
 		used_positions.append(p)
 
+	var default_values: Array = Array(range(1, item_count + 1))
+	default_values.shuffle()
+
 	for i in item_count:
 		var item: WheelItem = WHEEL_ITEM_SCENE.instantiate()
 		var angle: float = i * angle_step
@@ -74,7 +77,7 @@ func _setup_items() -> void:
 			item.modifier = eq.get("value", 1)
 		else:
 			item.slot_color = WheelItem.SlotColor.BLACK if i % 2 == 0 else WheelItem.SlotColor.RED
-			item.modifier = (i % 10) + 1
+			item.modifier = default_values[i]
 		_spinning_part.add_child(item)
 
 func get_wheel_items() -> Array[WheelItem]:
