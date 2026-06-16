@@ -143,7 +143,10 @@ func _find_node_data(id: String) -> Dictionary:
 	return {}
 
 func _on_node_selected(mn: MapNode) -> void:
+	if selected_node != null:
+		selected_node.set_selected(false)
 	selected_node = mn
+	selected_node.set_selected(true)
 	info_panel.visible = true
 	start_button.visible = mn.node_type != "start" and mn.node_type != "merchant"
 
