@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bpbktemfxbgni"]
 
-[ext_resource type="Script" uid="uid://c7q2rk5n3pb8e" path="res://scripts/damage_display.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c7q2rk5n3pb8e" path="res://scripts/combat/damage_display.gd" id="1_script"]
 
 [node name="DamageDisplay" type="CanvasLayer"]
 layer = 10

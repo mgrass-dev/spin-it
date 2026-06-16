@@ -1,6 +1,6 @@
 extends Node2D
 
-const MAP_NODE_SCENE := preload("res://scenes/map_node.tscn")
+const MAP_NODE_SCENE := preload("res://scenes/map/map_node.tscn")
 
 const PATH_COLOR := Color(0.78, 0.55, 0.18)
 const PATH_WIDTH := 14.0
@@ -207,7 +207,7 @@ func _on_start_pressed() -> void:
 		_open_merchant()
 		return
 	GameState.start_combat(selected_node.node_id, level_data)
-	get_tree().change_scene_to_file("res://scenes/combat.tscn")
+	get_tree().change_scene_to_file("res://scenes/combat/combat.tscn")
 
 func _on_wheel_preview_pressed() -> void:
 	var overlay := CanvasLayer.new()
@@ -219,7 +219,7 @@ func _on_wheel_preview_pressed() -> void:
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(bg)
 
-	var wheel := preload("res://scenes/wheel.tscn").instantiate()
+	var wheel := preload("res://scenes/combat/wheel.tscn").instantiate()
 	wheel.position = Vector2(640, 340)
 	wheel.scale = Vector2(0.85, 0.85)
 	overlay.add_child(wheel)
@@ -235,7 +235,7 @@ func _on_wheel_preview_pressed() -> void:
 	overlay.add_child(close_btn)
 
 func _open_merchant() -> void:
-	var reward = load("res://scripts/reward_screen.gd").new()
+	var reward = load("res://scripts/combat/reward_screen.gd").new()
 	reward.is_merchant_mode = true
 	add_child(reward)
 	reward.closed.connect(_on_merchant_closed)

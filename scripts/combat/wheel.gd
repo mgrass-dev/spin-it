@@ -1,6 +1,6 @@
 extends Node2D
 
-const WHEEL_ITEM_SCENE = preload("res://scenes/wheel_item.tscn")
+const WHEEL_ITEM_SCENE = preload("res://scenes/combat/wheel_item.tscn")
 
 @export var spin_duration: float = 5.0
 @export var item_count: int = 20

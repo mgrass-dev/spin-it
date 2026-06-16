@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bofw1sm0ss8fu"]
 
-[ext_resource type="Script" uid="uid://7onstwo6y4t" path="res://scripts/settings_menu.gd" id="1_05p07"]
-[ext_resource type="PackedScene" uid="uid://dkgj4v7nk3hkn" path="res://scenes/gold_counter.tscn" id="2_soq7b"]
+[ext_resource type="Script" uid="uid://7onstwo6y4t" path="res://scripts/menu/settings_menu.gd" id="1_05p07"]
+[ext_resource type="PackedScene" uid="uid://dkgj4v7nk3hkn" path="res://scenes/ui/gold_counter.tscn" id="2_soq7b"]
 
 [node name="SettingsMenu" type="CanvasLayer" unique_id=623952953]
 script = ExtResource("1_05p07")

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c3mapnode0001"]
 
-[ext_resource type="Script" uid="uid://c3mapnodescr1" path="res://scripts/map_node.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c3mapnodescr1" path="res://scripts/map/map_node.gd" id="1_script"]
 
 [node name="MapNode" type="Node2D" unique_id=1155612949]
 script = ExtResource("1_script")

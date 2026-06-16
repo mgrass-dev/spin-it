@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c3hpbarscn001"]
 
-[ext_resource type="Script" uid="uid://ch0ere8cheua6" path="res://scripts/hp_bar.gd" id="1_hpbar"]
+[ext_resource type="Script" uid="uid://ch0ere8cheua6" path="res://scripts/ui/hp_bar.gd" id="1_hpbar"]
 
 [node name="HPBar" type="HBoxContainer"]
 script = ExtResource("1_hpbar")

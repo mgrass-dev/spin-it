@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://c3mapscene001"]
 
-[ext_resource type="Script" uid="uid://c3mapscript01" path="res://scripts/map.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c3mapscript01" path="res://scripts/map/map.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://d3plvhbe2iqdv" path="res://sprites/map/map_bg_frame.png" id="2_bg"]
 [ext_resource type="Texture2D" uid="uid://cvt7p5inj0fo" path="res://sprites/map/map_legend.png" id="3_legend"]
-[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="4_settings"]
-[ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/hp_bar.tscn" id="5_hpbar"]
+[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/menu/settings_menu.tscn" id="4_settings"]
+[ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/ui/hp_bar.tscn" id="5_hpbar"]
 
 [node name="Map" type="Node2D" unique_id=585676313]
 script = ExtResource("1_script")

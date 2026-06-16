@@ -13,11 +13,11 @@ func _ready() -> void:
 
 func _on_continue() -> void:
 	GameState.load_game()
-	get_tree().change_scene_to_file("res://scenes/map.tscn")
+	get_tree().change_scene_to_file("res://scenes/map/map.tscn")
 
 func _on_new_game() -> void:
 	GameState.reset_game()
-	get_tree().change_scene_to_file("res://scenes/map.tscn")
+	get_tree().change_scene_to_file("res://scenes/map/map.tscn")
 
 func _on_settings() -> void:
 	_settings_menu.open()

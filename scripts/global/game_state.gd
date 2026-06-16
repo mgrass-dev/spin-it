@@ -4,7 +4,7 @@ const SAVE_PATH := "user://save.json"
 const INVENTORY_PATH := "user://inventory.json"
 const ALL_ITEMS_PATH := "res://data/items/all_items.json"
 
-const _InventoryItem = preload("res://scripts/inventory_item.gd")
+const _InventoryItem = preload("res://scripts/data/inventory_item.gd")
 
 var current_level: int = 1
 var level_seed: int = 0

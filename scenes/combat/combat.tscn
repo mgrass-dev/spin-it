@@ -1,15 +1,15 @@
 [gd_scene format=3 uid="uid://bjmfvq2gql273"]
 
-[ext_resource type="Script" uid="uid://bmwen85ucpgn2" path="res://scripts/combat.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://b1oi25satqc2b" path="res://scenes/wheel.tscn" id="1_wheel"]
-[ext_resource type="PackedScene" uid="uid://d8rin1idfaff" path="res://scenes/ball.tscn" id="2_ball"]
+[ext_resource type="Script" uid="uid://bmwen85ucpgn2" path="res://scripts/combat/combat.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://b1oi25satqc2b" path="res://scenes/combat/wheel.tscn" id="1_wheel"]
+[ext_resource type="PackedScene" uid="uid://d8rin1idfaff" path="res://scenes/combat/ball.tscn" id="2_ball"]
 [ext_resource type="Texture2D" uid="uid://dkebnr0474l07" path="res://sprites/background/enemy_bg.png" id="3_enemy_bg"]
 [ext_resource type="Texture2D" uid="uid://dufvspmj8ri5g" path="res://sprites/background/player_bg.png" id="4_player_bg"]
 [ext_resource type="Texture2D" uid="uid://dgu3bykqg77sd" path="res://sprites/background/separator.png" id="5_separator"]
 [ext_resource type="Texture2D" uid="uid://crvcgeqwk3yuy" path="res://sprites/hud/hud_ball.png" id="9_hud_ball"]
-[ext_resource type="PackedScene" uid="uid://bpbktemfxbgni" path="res://scenes/damage_display.tscn" id="11_damage"]
-[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="11_ya4ey"]
-[ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/hp_bar.tscn" id="12_hpbar"]
+[ext_resource type="PackedScene" uid="uid://bpbktemfxbgni" path="res://scenes/combat/damage_display.tscn" id="11_damage"]
+[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/menu/settings_menu.tscn" id="11_ya4ey"]
+[ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/ui/hp_bar.tscn" id="12_hpbar"]
 
 [node name="Main" type="Node2D" unique_id=1165397904]
 script = ExtResource("1_script")

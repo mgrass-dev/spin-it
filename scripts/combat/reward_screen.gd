@@ -447,7 +447,7 @@ func _on_mini_wheel_close() -> void:
 		closed.emit()
 		queue_free()
 	else:
-		get_tree().change_scene_to_file("res://scenes/map.tscn")
+		get_tree().change_scene_to_file("res://scenes/map/map.tscn")
 		queue_free()
 
 func _on_reroll() -> void:

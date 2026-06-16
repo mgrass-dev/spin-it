@@ -337,7 +337,7 @@ func _apply_enemy_damage(amount: int) -> void:
 # ─── End / Reward screen ─────────────────────────────────────────────────────
 
 func _show_reward_screen() -> void:
-	var reward = load("res://scripts/reward_screen.gd").new()
+	var reward = load("res://scripts/combat/reward_screen.gd").new()
 	add_child(reward)
 	reward.closed.connect(_show_end_screen)
 
@@ -358,5 +358,5 @@ func _show_end_screen() -> void:
 	btn.size = Vector2(300, 48)
 	btn.position = Vector2(VIEWPORT_SIZE.x * 0.5 - 150, VIEWPORT_SIZE.y * 0.5 - 24)
 	btn.add_theme_font_size_override("font_size", 20)
-	btn.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/map.tscn"))
+	btn.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/map/map.tscn"))
 	canvas.add_child(btn)

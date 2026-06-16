@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c3titlescn001"]
 
-[ext_resource type="Script" uid="uid://xtfp8odxhoye" path="res://scripts/title.gd" id="1_title"]
-[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="2_settings"]
+[ext_resource type="Script" uid="uid://xtfp8odxhoye" path="res://scripts/menu/title.gd" id="1_title"]
+[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/menu/settings_menu.tscn" id="2_settings"]
 
 [node name="Title" type="Node2D"]
 script = ExtResource("1_title")
