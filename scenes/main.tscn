@@ -6,11 +6,10 @@
 [ext_resource type="Texture2D" uid="uid://dkebnr0474l07" path="res://sprites/background/fond_ennemi.png" id="3_enemy_bg"]
 [ext_resource type="Texture2D" uid="uid://dufvspmj8ri5g" path="res://sprites/background/fond_joueur.png" id="4_player_bg"]
 [ext_resource type="Texture2D" uid="uid://dgu3bykqg77sd" path="res://sprites/background/barre_de_séparation.png" id="5_separator"]
-[ext_resource type="Texture2D" uid="uid://d08syq3ek6nee" path="res://sprites/hud/barre_de_vie_ennemi.png" id="6_enemy_hp"]
-[ext_resource type="Texture2D" uid="uid://bqedb6wkxmhsu" path="res://sprites/hud/barre_de_vie_perso.png" id="7_player_hp"]
 [ext_resource type="Texture2D" uid="uid://crvcgeqwk3yuy" path="res://sprites/hud/hud_bille.png" id="9_hud_ball"]
 [ext_resource type="PackedScene" uid="uid://bpbktemfxbgni" path="res://scenes/damage_display.tscn" id="11_damage"]
 [ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="11_ya4ey"]
+[ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/hp_bar.tscn" id="12_hpbar"]
 
 [node name="Main" type="Node2D" unique_id=1165397904]
 script = ExtResource("1_script")
@@ -33,10 +32,6 @@ position = Vector2(647.9999, 313.5)
 scale = Vector2(1.3499997, 1.3499997)
 texture = ExtResource("5_separator")
 
-[node name="EnemyHealthBar" type="Sprite2D" parent="." unique_id=200000004]
-position = Vector2(170, 40)
-texture = ExtResource("6_enemy_hp")
-
 [node name="EnemyWheel" parent="." unique_id=200000005 instance=ExtResource("1_wheel")]
 position = Vector2(663, 155)
 scale = Vector2(0.5, 0.5)
@@ -44,10 +39,6 @@ scale = Vector2(0.5, 0.5)
 [node name="PlayerWheel" parent="." unique_id=1552624772 instance=ExtResource("1_wheel")]
 position = Vector2(666, 511)
 scale = Vector2(0.75, 0.75)
-
-[node name="PlayerHealthBar" type="Sprite2D" parent="." unique_id=200000006]
-position = Vector2(1119, 357)
-texture = ExtResource("7_player_hp")
 
 [node name="HudBall" type="Sprite2D" parent="." unique_id=200000008]
 position = Vector2(1086, 658)
@@ -63,18 +54,16 @@ position = Vector2(956, 652)
 [node name="UILayer" type="CanvasLayer" parent="."]
 layer = 5
 
-[node name="EnemyHPBar" type="ProgressBar" parent="UILayer"]
-offset_left = 82.0
-offset_top = 27.0
-offset_right = 318.0
-offset_bottom = 53.0
-show_percentage = false
+[node name="EnemyHPBar" parent="UILayer" instance=ExtResource("12_hpbar")]
+offset_left = 15.0
+offset_top = 10.0
+offset_right = 310.0
+offset_bottom = 62.0
 
-[node name="PlayerHPBar" type="ProgressBar" parent="UILayer"]
-offset_left = 1031.0
-offset_top = 344.0
-offset_right = 1267.0
-offset_bottom = 370.0
-show_percentage = false
+[node name="PlayerHPBar" parent="UILayer" instance=ExtResource("12_hpbar")]
+offset_left = 955.0
+offset_top = 328.0
+offset_right = 1265.0
+offset_bottom = 380.0
 
 [node name="SettingsMenu" parent="." unique_id=623952953 instance=ExtResource("11_ya4ey")]

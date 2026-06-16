@@ -11,6 +11,7 @@ var player_max_hp: int = 0
 
 var enemy_hp: int = 0
 var enemy_max_hp: int = 0
+var enemy_name: String = ""
 
 func start_combat(node_id: String, level_data: Dictionary) -> void:
 	current_combat_node_id = node_id
@@ -21,6 +22,7 @@ func start_combat(node_id: String, level_data: Dictionary) -> void:
 	var e: Dictionary = level_data.get("enemies", {}).get("default_combat", {})
 	enemy_max_hp = e.get("max_hp", 50)
 	enemy_hp = e.get("hp", enemy_max_hp)
+	enemy_name = e.get("name", "Enemy")
 
 func complete_current_combat() -> void:
 	if current_combat_node_id != "" and current_combat_node_id not in completed_nodes:

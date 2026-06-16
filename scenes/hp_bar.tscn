@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://c3hpbarscn001"]
+
+[ext_resource type="Script" uid="uid://c3hpbarscript1" path="res://scripts/hp_bar.gd" id="1_hpbar"]
+
+[node name="HPBar" type="HBoxContainer"]
+script = ExtResource("1_hpbar")
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(40, 40)
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Content" type="VBoxContainer" parent="."]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="Content"]
+visible = false
+size_flags_horizontal = 3
+text = ""
+theme_override_font_sizes/font_size = 14
+
+[node name="BarRow" type="HBoxContainer" parent="Content"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 6
+
+[node name="Bar" type="ProgressBar" parent="Content/BarRow"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+custom_minimum_size = Vector2(0, 18)
+show_percentage = false
+
+[node name="ValueLabel" type="Label" parent="Content/BarRow"]
+size_flags_vertical = 4
+text = "0 / 0"
+theme_override_font_sizes/font_size = 11

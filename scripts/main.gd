@@ -7,8 +7,8 @@ enum Turn { PLAYER, ENEMY }
 @onready var ball: Node2D = $Ball
 @onready var damage_display: CanvasLayer = $DamageDisplay
 @onready var _ui_layer: CanvasLayer = $UILayer
-@onready var _enemy_hp_bar: ProgressBar = $UILayer/EnemyHPBar
-@onready var _player_hp_bar: ProgressBar = $UILayer/PlayerHPBar
+@onready var _enemy_hp_bar: HPBar = $UILayer/EnemyHPBar
+@onready var _player_hp_bar: HPBar = $UILayer/PlayerHPBar
 
 const WHEEL_VISUAL_RADIUS := 250.0
 const BALL_APPROACH_DURATION := 0.5
@@ -30,8 +30,6 @@ var _enemy_log_vbox: VBoxContainer
 var _player_log_scroll: ScrollContainer
 var _enemy_log_scroll: ScrollContainer
 var _enemy_ball: Sprite2D
-var _enemy_hp_label: Label
-var _player_hp_label: Label
 
 func _ready() -> void:
 	if not OS.has_feature("editor"):
@@ -61,36 +59,13 @@ func _setup_hp_bars() -> void:
 		GameState.player_max_hp = 50
 		GameState.player_hp = 50
 
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color(0.8, 0.1, 0.1)
-	fill.set_corner_radius_all(3)
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.12, 0.04, 0.04, 0.85)
-	bg.set_corner_radius_all(3)
-
-	for bar: ProgressBar in [_enemy_hp_bar, _player_hp_bar]:
-		bar.add_theme_stylebox_override("fill", fill.duplicate())
-		bar.add_theme_stylebox_override("background", bg.duplicate())
-
-	_enemy_hp_bar.max_value = GameState.enemy_max_hp
-	_enemy_hp_bar.value = GameState.enemy_hp
-	_player_hp_bar.max_value = GameState.player_max_hp
-	_player_hp_bar.value = GameState.player_hp
-
-	for bar: ProgressBar in [_enemy_hp_bar, _player_hp_bar]:
-		var lbl := Label.new()
-		lbl.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl.add_theme_color_override("font_color", Color.WHITE)
-		lbl.add_theme_font_size_override("font_size", 12)
-		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		bar.add_child(lbl)
-		if bar == _enemy_hp_bar:
-			_enemy_hp_label = lbl
-		else:
-			_player_hp_label = lbl
-	_update_hp_labels()
+	_enemy_hp_bar.setup(
+		load("res://sprites/map/icone_combat.png"),
+		"",
+		GameState.enemy_hp,
+		GameState.enemy_max_hp
+	)
+	_player_hp_bar.setup(null, "", GameState.player_hp, GameState.player_max_hp)
 
 func _setup_section_overlays() -> void:
 	# Layer 2 sits above the Node2D world but below the HP-bar UILayer (5)
@@ -119,12 +94,6 @@ func _setup_enemy_ball() -> void:
 	_enemy_ball.z_index = 2
 	_enemy_ball.visible = false
 	add_child(_enemy_ball)
-
-func _update_hp_labels() -> void:
-	if _enemy_hp_label:
-		_enemy_hp_label.text = "%d / %d" % [GameState.enemy_hp, GameState.enemy_max_hp]
-	if _player_hp_label:
-		_player_hp_label.text = "%d / %d" % [GameState.player_hp, GameState.player_max_hp]
 
 func _setup_logs() -> void:
 	# Player log — bottom-left of player section, left of the wheel
@@ -289,8 +258,7 @@ func _on_damage_applied(amount: int) -> void:
 
 func _apply_player_damage(amount: int) -> void:
 	GameState.enemy_hp = maxi(0, GameState.enemy_hp - amount)
-	_enemy_hp_bar.value = GameState.enemy_hp
-	_update_hp_labels()
+	_enemy_hp_bar.update_hp(GameState.enemy_hp, GameState.enemy_max_hp)
 	ball.return_to_slot()
 	ball.visible = true
 	_add_player_log("You deal %d damage  (enemy: %d HP)" % [amount, GameState.enemy_hp])
@@ -304,8 +272,7 @@ func _apply_player_damage(amount: int) -> void:
 
 func _apply_enemy_damage(amount: int) -> void:
 	GameState.player_hp = maxi(0, GameState.player_hp - amount)
-	_player_hp_bar.value = GameState.player_hp
-	_update_hp_labels()
+	_player_hp_bar.update_hp(GameState.player_hp, GameState.player_max_hp)
 	_add_enemy_log("Enemy deals %d damage  (you: %d HP)" % [amount, GameState.player_hp])
 	_turn_number += 1
 	if GameState.player_hp <= 0:

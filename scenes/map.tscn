@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://c3mapscript01" path="res://scripts/map.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://d3plvhbe2iqdv" path="res://sprites/map/map_fond_et_cadre.png" id="2_bg"]
 [ext_resource type="Texture2D" uid="uid://cvt7p5inj0fo" path="res://sprites/map/map_legende.png" id="3_legend"]
-[ext_resource type="Texture2D" uid="uid://bv11o5rg4hb4q" path="res://sprites/map/icone_boss.png" id="4_boss_icon"]
-[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="5_settings"]
+[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="4_settings"]
+[ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/hp_bar.tscn" id="5_hpbar"]
 
 [node name="Map" type="Node2D"]
 script = ExtResource("1_script")
@@ -29,25 +29,11 @@ texture = ExtResource("3_legend")
 [node name="UILayer" type="CanvasLayer" parent="."]
 layer = 1
 
-[node name="BossSection" type="HBoxContainer" parent="UILayer"]
+[node name="BossHPBar" parent="UILayer" instance=ExtResource("5_hpbar")]
 offset_left = 20.0
 offset_top = 10.0
-offset_right = 340.0
-offset_bottom = 60.0
-
-[node name="BossIcon" type="TextureRect" parent="UILayer/BossSection"]
-custom_minimum_size = Vector2(46, 46)
-texture = ExtResource("4_boss_icon")
-expand_mode = 0
-stretch_mode = 4
-
-[node name="HPBar" type="ProgressBar" parent="UILayer/BossSection"]
-custom_minimum_size = Vector2(240, 28)
-size_flags_vertical = 4
-min_value = 0.0
-max_value = 100.0
-value = 100.0
-show_percentage = false
+offset_right = 360.0
+offset_bottom = 62.0
 
 [node name="InfoPanel" type="Panel" parent="UILayer"]
 offset_left = 952.0
@@ -56,47 +42,20 @@ offset_right = 1240.0
 offset_bottom = 700.0
 visible = false
 
-[node name="NodeLabel" type="Label" parent="UILayer/InfoPanel"]
-offset_left = 10.0
-offset_top = 14.0
-offset_right = 278.0
-offset_bottom = 50.0
-text = "Combat"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 22
-
-[node name="MobIcon" type="TextureRect" parent="UILayer/InfoPanel"]
-offset_left = 94.0
-offset_top = 58.0
-offset_right = 194.0
-offset_bottom = 158.0
-expand_mode = 1
-stretch_mode = 4
-
-[node name="MobName" type="Label" parent="UILayer/InfoPanel"]
-offset_left = 10.0
-offset_top = 164.0
-offset_right = 278.0
-offset_bottom = 196.0
-text = ""
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
-
-[node name="MobHP" type="Label" parent="UILayer/InfoPanel"]
-offset_left = 10.0
-offset_top = 202.0
-offset_right = 278.0
-offset_bottom = 228.0
-text = ""
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 13
+[node name="MobHPBar" parent="UILayer/InfoPanel" instance=ExtResource("5_hpbar")]
+offset_left = 8.0
+offset_top = 168.0
+offset_right = 280.0
+offset_bottom = 254.0
+icon_size = Vector2(60, 60)
+font_size_name = 16
 
 [node name="StartButton" type="Button" parent="UILayer/InfoPanel"]
 offset_left = 44.0
-offset_top = 574.0
+offset_top = 400.0
 offset_right = 244.0
-offset_bottom = 618.0
+offset_bottom = 440.0
 text = "Start"
 theme_override_font_sizes/font_size = 20
 
-[node name="SettingsMenu" parent="." instance=ExtResource("5_settings")]
+[node name="SettingsMenu" parent="." instance=ExtResource("4_settings")]

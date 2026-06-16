@@ -8,14 +8,18 @@ const PATH_WIDTH := 14.0
 const DASH_LEN := 18.0
 const GAP_LEN := 12.0
 
+const _NODE_ICONS := {
+	"combat": "res://sprites/map/icone_combat.png",
+	"boss": "res://sprites/map/icone_boss.png",
+	"merchant": "res://sprites/map/icone_marchand.png",
+	"start": "res://sprites/map/icone_départ.png",
+}
+
 @onready var paths_layer: Node2D = $PathsLayer
 @onready var nodes_layer: Node2D = $NodesLayer
-@onready var boss_hp_bar: ProgressBar = $UILayer/BossSection/HPBar
+@onready var boss_hp_bar: HPBar = $UILayer/BossHPBar
 @onready var info_panel: Control = $UILayer/InfoPanel
-@onready var node_label: Label = $UILayer/InfoPanel/NodeLabel
-@onready var mob_icon: TextureRect = $UILayer/InfoPanel/MobIcon
-@onready var mob_name_label: Label = $UILayer/InfoPanel/MobName
-@onready var mob_hp_label: Label = $UILayer/InfoPanel/MobHP
+@onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/MobHPBar
 @onready var start_button: Button = $UILayer/InfoPanel/StartButton
 
 var level_data: Dictionary = {}
@@ -23,21 +27,10 @@ var map_nodes: Dictionary = {}
 var selected_node: MapNode = null
 
 func _ready() -> void:
-	_style_hp_bar()
 	info_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	info_panel.visible = false
 	start_button.pressed.connect(_on_start_pressed)
 	_load_level(GameState.current_level)
-
-func _style_hp_bar() -> void:
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color(0.75, 0.1, 0.1)
-	fill.set_corner_radius_all(4)
-	boss_hp_bar.add_theme_stylebox_override("fill", fill)
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.15, 0.05, 0.05)
-	bg.set_corner_radius_all(4)
-	boss_hp_bar.add_theme_stylebox_override("background", bg)
 
 func _load_level(level_id: int) -> void:
 	var path := LEVEL_PATH % level_id
@@ -53,8 +46,13 @@ func _load_level(level_id: int) -> void:
 
 func _build_map() -> void:
 	if "boss" in level_data:
-		boss_hp_bar.max_value = level_data["boss"]["max_hp"]
-		boss_hp_bar.value = level_data["boss"]["hp"]
+		var b: Dictionary = level_data["boss"]
+		boss_hp_bar.setup(
+			load(_NODE_ICONS["boss"]),
+			b.get("name", ""),
+			b.get("hp", 0),
+			b.get("max_hp", 0)
+		)
 	_draw_paths()
 	_create_nodes()
 	_apply_state()
@@ -122,42 +120,24 @@ func _find_node_data(id: String) -> Dictionary:
 			return node_data
 	return {}
 
-const _NODE_ICONS := {
-	"combat": "res://sprites/map/icone_combat.png",
-	"boss": "res://sprites/map/icone_boss.png",
-	"merchant": "res://sprites/map/icone_marchand.png",
-	"start": "res://sprites/map/icone_départ.png",
-}
-
 func _on_node_selected(mn: MapNode) -> void:
 	selected_node = mn
 	info_panel.visible = true
-	node_label.text = _type_label(mn.node_type)
-	mob_icon.texture = load(_NODE_ICONS.get(mn.node_type, _NODE_ICONS["combat"]))
 	start_button.visible = mn.node_type != "start"
+
+	var icon_tex: Texture2D = load(_NODE_ICONS.get(mn.node_type, _NODE_ICONS["combat"]))
 
 	match mn.node_type:
 		"combat":
 			var e: Dictionary = level_data.get("enemies", {}).get("default_combat", {})
-			mob_name_label.text = e.get("name", "Unknown")
-			mob_hp_label.text = "HP: %d / %d" % [e.get("hp", 0), e.get("max_hp", 0)]
+			mob_hp_bar.setup(icon_tex, e.get("name", "Unknown"), e.get("hp", 0), e.get("max_hp", 0))
 		"boss":
 			var b: Dictionary = level_data.get("boss", {})
-			mob_name_label.text = b.get("name", "Unknown")
-			mob_hp_label.text = "HP: %d / %d" % [b.get("hp", 0), b.get("max_hp", 0)]
+			mob_hp_bar.setup(icon_tex, b.get("name", "Unknown"), b.get("hp", 0), b.get("max_hp", 0))
 		"merchant":
-			mob_name_label.text = "Merchant"
-			mob_hp_label.text = ""
+			mob_hp_bar.setup(icon_tex, "Merchant", 0, 0)
 		_:
-			mob_name_label.text = ""
-			mob_hp_label.text = ""
-
-func _type_label(type: String) -> String:
-	match type:
-		"combat": return "Combat"
-		"boss": return "Final Boss"
-		"merchant": return "Merchant"
-		_: return ""
+			mob_hp_bar.setup(null, "", 0, 0)
 
 func _on_start_pressed() -> void:
 	if selected_node == null:
