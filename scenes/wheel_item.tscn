@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c7wm3n8kpqt51"]
 
 [ext_resource type="Script" uid="uid://bxr4ql5nvmj72" path="res://scripts/wheel_item.gd" id="1_wi001"]
-[ext_resource type="Texture2D" uid="uid://bin5vudxmluqm" path="res://sprites/roue/case_noir.png" id="2_wi002"]
+[ext_resource type="Texture2D" uid="uid://bin5vudxmluqm" path="res://sprites/roue/slot_black.png" id="2_wi002"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wi003"]
 size = Vector2(64, 32)

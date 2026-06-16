@@ -66,7 +66,7 @@ func _setup_hp_bars() -> void:
 		GameState.player_hp = 50
 
 	_enemy_hp_bar.setup(
-		load("res://sprites/map/icone_combat.png"),
+		load("res://sprites/map/icon_combat.png"),
 		"",
 		GameState.enemy_hp,
 		GameState.enemy_max_hp
@@ -95,7 +95,7 @@ func _setup_section_overlays() -> void:
 
 func _setup_enemy_ball() -> void:
 	_enemy_ball = Sprite2D.new()
-	_enemy_ball.texture = load("res://sprites/billes/bille_blanche.png")
+	_enemy_ball.texture = load("res://sprites/balls/ball_white.png")
 	_enemy_ball.scale = Vector2(0.5, 0.5)
 	_enemy_ball.z_index = 2
 	_enemy_ball.visible = false

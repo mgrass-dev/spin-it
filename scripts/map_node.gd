@@ -4,10 +4,10 @@ class_name MapNode
 signal node_selected(map_node: MapNode)
 
 const ICON_TEXTURES := {
-	"combat": "res://sprites/map/icone_combat.png",
-	"boss": "res://sprites/map/icone_boss.png",
-	"merchant": "res://sprites/map/icone_marchand.png",
-	"start": "res://sprites/map/icone_départ.png",
+	"combat": "res://sprites/map/icon_combat.png",
+	"boss": "res://sprites/map/icon_boss.png",
+	"merchant": "res://sprites/map/icon_merchant.png",
+	"start": "res://sprites/map/icon_start.png",
 }
 
 const NODE_RADIUS := 48.0

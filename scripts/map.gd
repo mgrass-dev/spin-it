@@ -9,10 +9,10 @@ const DASH_LEN := 18.0
 const GAP_LEN := 12.0
 
 const _NODE_ICONS := {
-	"combat": "res://sprites/map/icone_combat.png",
-	"boss": "res://sprites/map/icone_boss.png",
-	"merchant": "res://sprites/map/icone_marchand.png",
-	"start": "res://sprites/map/icone_départ.png",
+	"combat": "res://sprites/map/icon_combat.png",
+	"boss": "res://sprites/map/icon_boss.png",
+	"merchant": "res://sprites/map/icon_merchant.png",
+	"start": "res://sprites/map/icon_start.png",
 }
 
 @onready var paths_layer: Node2D = $PathsLayer
@@ -23,7 +23,7 @@ const _NODE_ICONS := {
 @onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/Margins/Layout/MobHPBar
 @onready var start_button: Button = $UILayer/InfoPanel/Margins/Layout/StartButton
 
-# Pixel bounds of the brown panel inside the 1920×1080 map_legende.png sprite
+# Pixel bounds of the brown panel inside the 1920×1080 map_legend.png sprite
 const _BROWN_RECT := Rect2(1600, 363, 290, 426)
 
 var level_data: Dictionary = {}

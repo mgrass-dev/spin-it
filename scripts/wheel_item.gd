@@ -18,8 +18,8 @@ enum SlotColor { BLACK, RED }
 signal ball_hit(item: Area2D)
 
 const TEXTURES: Dictionary = {
-	SlotColor.BLACK: preload("res://sprites/roue/case_noir.png"),
-	SlotColor.RED: preload("res://sprites/roue/case_rouge.png"),
+	SlotColor.BLACK: preload("res://sprites/roue/slot_black.png"),
+	SlotColor.RED: preload("res://sprites/roue/slot_red.png"),
 }
 
 @onready var _sprite: Sprite2D = $Sprite2D
