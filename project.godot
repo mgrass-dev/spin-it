@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Spin it"
-run/main_scene="uid://bjmfvq2gql273"
+run/main_scene="uid://c3mapscene001"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GameState="*res://scripts/game_state.gd"
 
 [display]
 

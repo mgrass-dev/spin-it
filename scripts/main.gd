@@ -87,5 +87,19 @@ func _on_spin_completed(item: WheelItem) -> void:
 	damage_display.show_damage(item.modifier)
 
 func _on_damage_applied(_amount: int) -> void:
+	GameState.complete_current_combat()
 	ball.return_to_slot()
 	ball.visible = true
+	_show_return_button()
+
+func _show_return_button() -> void:
+	var canvas := CanvasLayer.new()
+	canvas.layer = 15
+	add_child(canvas)
+	var btn := Button.new()
+	btn.text = "Retour à la carte"
+	btn.position = Vector2(490, 628)
+	btn.size = Vector2(300, 48)
+	btn.add_theme_font_size_override("font_size", 20)
+	btn.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/map.tscn"))
+	canvas.add_child(btn)
