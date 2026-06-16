@@ -20,6 +20,8 @@ var _mini_wheel_close_btn: Button
 var _replaced_card: ColorRect
 var _slot_selected := false
 var _mini_default_values: Array = []
+var _mini_slot_nodes: Array[Node2D] = []
+var _hovered_slot: int = -1
 
 signal closed()
 
@@ -179,6 +181,10 @@ func _show_mini_wheel() -> void:
 
 	_mini_wheel_container = Node2D.new()
 	add_child(_mini_wheel_container)
+
+	_mini_default_values = Array(range(1, 21))
+	_mini_default_values.shuffle()
+
 	_build_mini_wheel_visual()
 
 	var side_card_size := Vector2(180, 210)
@@ -274,20 +280,21 @@ func _make_mini_card(card: ColorRect, item_data: Dictionary, label_text: String)
 func _build_mini_wheel_visual() -> void:
 	for child in _mini_wheel_container.get_children():
 		child.queue_free()
+	_mini_slot_nodes.clear()
+	_hovered_slot = -1
 
 	var center := Vector2(640, 400)
 	var rad := MINI_WHEEL_RADIUS * MINI_WHEEL_SCALE
+	var s := MINI_WHEEL_SCALE
 
 	var bg := Sprite2D.new()
 	bg.texture = WHEEL_BG
 	bg.position = center
-	bg.scale = Vector2(MINI_WHEEL_SCALE, MINI_WHEEL_SCALE)
+	bg.scale = Vector2(s, s)
 	bg.z_index = 1
 	_mini_wheel_container.add_child(bg)
 
 	var angle_step: float = TAU / 20
-	_mini_default_values = Array(range(1, 21))
-	_mini_default_values.shuffle()
 
 	var equipped_by_pos: Dictionary = {}
 	for eq in GameState.equipped_wheel_slots:
@@ -310,42 +317,78 @@ func _build_mini_wheel_visual() -> void:
 			val = _mini_default_values[i]
 
 		var tex := SLOT_BLACK if is_black else SLOT_RED
+
+		var slot := Node2D.new()
+		slot.position = pos
+		slot.rotation = angle + PI / 2
+		slot.z_index = 5
+		_mini_wheel_container.add_child(slot)
+		_mini_slot_nodes.append(slot)
+
 		var sp := Sprite2D.new()
 		sp.texture = tex
-		sp.scale = Vector2(MINI_WHEEL_SCALE, MINI_WHEEL_SCALE)
-		sp.position = pos
-		sp.rotation = angle + PI / 2
-		sp.z_index = 5
-		_mini_wheel_container.add_child(sp)
+		sp.scale = Vector2(s, s)
+		slot.add_child(sp)
 
 		var lbl := Label.new()
 		lbl.text = str(val)
-		lbl.add_theme_font_size_override("font_size", 13)
+		lbl.add_theme_font_size_override("font_size", max(1, int(22 * s)))
 		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl.position = pos - Vector2(18, 8)
-		lbl.size = Vector2(36, 16)
+		lbl.position = Vector2(-32.0, -60.0) * s
+		lbl.size = Vector2(64.0, 40.0) * s
 		lbl.z_index = 6
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_mini_wheel_container.add_child(lbl)
+		slot.add_child(lbl)
 
 	var inner := Sprite2D.new()
 	inner.texture = WHEEL_CENTER
 	inner.position = center
-	inner.scale = Vector2(MINI_WHEEL_SCALE, MINI_WHEEL_SCALE)
+	inner.scale = Vector2(s, s)
 	inner.z_index = 8
 	_mini_wheel_container.add_child(inner)
 
+func _update_hover(mpos: Vector2, center: Vector2, rad: float) -> void:
+	var tolerance: float = rad * 0.35
+	var dist := mpos.distance_to(center)
+	var idx: int = -1
+	if abs(dist - rad) <= tolerance:
+		var angle := (mpos - center).angle()
+		while angle < 0:
+			angle += TAU
+		var angle_step: float = TAU / 20
+		idx = int(angle / angle_step + 0.5) % 20
+
+	if idx == _hovered_slot:
+		return
+
+	if _hovered_slot >= 0 and _hovered_slot < _mini_slot_nodes.size():
+		_mini_slot_nodes[_hovered_slot].scale = Vector2.ONE
+
+	_hovered_slot = idx
+
+	if idx >= 0 and idx < _mini_slot_nodes.size():
+		_mini_slot_nodes[idx].scale = Vector2(1.15, 1.15)
+
 func _input(event: InputEvent) -> void:
-	if not _mini_wheel_active or _slot_selected:
+	if not _mini_wheel_active:
+		return
+
+	var center := Vector2(640, 400)
+	var rad := MINI_WHEEL_RADIUS * MINI_WHEEL_SCALE
+
+	if event is InputEventMouseMotion and not _slot_selected:
+		var mpos := (event as InputEventMouseMotion).position
+		_update_hover(mpos, center, rad)
+		return
+
+	if _slot_selected:
 		return
 	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 
 	var click_pos := (event as InputEventMouseButton).position
-	var center := Vector2(640, 400)
 	var dist := click_pos.distance_to(center)
-	var rad := MINI_WHEEL_RADIUS * MINI_WHEEL_SCALE
 	var tolerance: float = rad * 0.35
 
 	if abs(dist - rad) > tolerance:
