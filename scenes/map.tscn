@@ -14,10 +14,12 @@ anchor_mode = 0
 
 [node name="Background" type="Sprite2D" parent="."]
 position = Vector2(640, 360)
+scale = Vector2(0.66667, 0.66667)
 texture = ExtResource("2_bg")
 
 [node name="LegendPanel" type="Sprite2D" parent="."]
-position = Vector2(1093, 400)
+position = Vector2(640, 360)
+scale = Vector2(0.66667, 0.66667)
 texture = ExtResource("3_legend")
 
 [node name="PathsLayer" type="Node2D" parent="."]

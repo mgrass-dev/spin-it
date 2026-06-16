@@ -60,4 +60,21 @@ position = Vector2(956, 652)
 
 [node name="DamageDisplay" parent="." unique_id=200000011 instance=ExtResource("11_damage")]
 
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="EnemyHPBar" type="ProgressBar" parent="UILayer"]
+offset_left = 82.0
+offset_top = 27.0
+offset_right = 318.0
+offset_bottom = 53.0
+show_percentage = false
+
+[node name="PlayerHPBar" type="ProgressBar" parent="UILayer"]
+offset_left = 1031.0
+offset_top = 344.0
+offset_right = 1267.0
+offset_bottom = 370.0
+show_percentage = false
+
 [node name="SettingsMenu" parent="." unique_id=623952953 instance=ExtResource("11_ya4ey")]

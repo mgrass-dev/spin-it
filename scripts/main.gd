@@ -3,6 +3,8 @@ extends Node2D
 @onready var player_wheel: Node2D = $PlayerWheel
 @onready var ball: Node2D = $Ball
 @onready var damage_display: CanvasLayer = $DamageDisplay
+@onready var _enemy_hp_bar: ProgressBar = $UILayer/EnemyHPBar
+@onready var _player_hp_bar: ProgressBar = $UILayer/PlayerHPBar
 
 const WHEEL_VISUAL_RADIUS := 250.0
 const BALL_APPROACH_DURATION := 0.5
@@ -12,19 +14,49 @@ var _ball_rolling := false
 var _ball_offset_angle := 0.0
 var _ball_approach_start := Vector2.ZERO
 var _ball_approach_time := 0.0
+var _combat_over := false
 
 func _ready() -> void:
 	if not OS.has_feature("editor"):
 		var screen_size := DisplayServer.screen_get_size()
 		DisplayServer.window_set_size(screen_size)
 		DisplayServer.window_set_position(Vector2i.ZERO)
-	
+
 	ball.picked_up.connect(_on_ball_picked_up)
 	ball.released.connect(_on_ball_released)
 	player_wheel.spin_completed.connect(_on_spin_completed)
 	damage_display.damage_applied.connect(_on_damage_applied)
+	_setup_hp_bars()
+
+func _setup_hp_bars() -> void:
+	# Fallback if scene launched directly without map
+	if GameState.enemy_max_hp == 0:
+		GameState.enemy_max_hp = 50
+		GameState.enemy_hp = 50
+	if GameState.player_max_hp == 0:
+		GameState.player_max_hp = 50
+		GameState.player_hp = 50
+
+	var fill_style := StyleBoxFlat.new()
+	fill_style.bg_color = Color(0.8, 0.1, 0.1)
+	fill_style.set_corner_radius_all(3)
+	var bg_style := StyleBoxFlat.new()
+	bg_style.bg_color = Color(0.12, 0.04, 0.04, 0.85)
+	bg_style.set_corner_radius_all(3)
+
+	for bar in [_enemy_hp_bar, _player_hp_bar]:
+		bar.add_theme_stylebox_override("fill", fill_style.duplicate())
+		bar.add_theme_stylebox_override("background", bg_style.duplicate())
+
+	_enemy_hp_bar.max_value = GameState.enemy_max_hp
+	_enemy_hp_bar.value = GameState.enemy_hp
+	_player_hp_bar.max_value = GameState.player_max_hp
+	_player_hp_bar.value = GameState.player_hp
 
 func _process(delta: float) -> void:
+	if _combat_over:
+		return
+
 	if ball.is_held():
 		var ball_pos: Vector2 = ball.global_position
 		var dist: float = (ball_pos - player_wheel.global_position).length()
@@ -86,11 +118,15 @@ func _on_spin_completed(item: WheelItem) -> void:
 	ball.visible = false
 	damage_display.show_damage(item.modifier)
 
-func _on_damage_applied(_amount: int) -> void:
-	GameState.complete_current_combat()
+func _on_damage_applied(amount: int) -> void:
+	GameState.enemy_hp = maxi(0, GameState.enemy_hp - amount)
+	_enemy_hp_bar.value = GameState.enemy_hp
 	ball.return_to_slot()
 	ball.visible = true
-	_show_return_button()
+	if GameState.enemy_hp <= 0:
+		_combat_over = true
+		GameState.complete_current_combat()
+		_show_return_button()
 
 func _show_return_button() -> void:
 	var canvas := CanvasLayer.new()

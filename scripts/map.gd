@@ -133,5 +133,5 @@ func _type_label(type: String) -> String:
 func _on_start_pressed() -> void:
 	if selected_node == null:
 		return
-	GameState.start_combat(selected_node.node_id)
+	GameState.start_combat(selected_node.node_id, level_data)
 	get_tree().change_scene_to_file("res://scenes/main.tscn")

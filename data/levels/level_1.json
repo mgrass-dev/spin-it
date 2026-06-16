@@ -1,59 +1,63 @@
 {
-    "id": 1,
-    "boss": {
-        "name": "Démon",
-        "hp": 500,
-        "max_hp": 500
-    },
-    "nodes": [
-        {
-            "id": "start",
-            "type": "start",
-            "position": [515, 600],
-            "connections": ["c1"]
-        },
-        {
-            "id": "c1",
-            "type": "combat",
-            "position": [515, 490],
-            "connections": ["c_left", "merchant"]
-        },
-        {
-            "id": "c_left",
-            "type": "combat",
-            "position": [360, 385],
-            "connections": ["c_ul"]
-        },
-        {
-            "id": "merchant",
-            "type": "merchant",
-            "position": [595, 385],
-            "connections": ["c_ul", "c_ur"]
-        },
-        {
-            "id": "c_ul",
-            "type": "combat",
-            "position": [390, 265],
-            "connections": ["boss"]
-        },
-        {
-            "id": "c_ur",
-            "type": "combat",
-            "position": [685, 265],
-            "connections": ["boss"]
-        },
-        {
-            "id": "boss",
-            "type": "boss",
-            "position": [525, 150],
-            "connections": []
-        }
-    ],
-    "enemies": {
-        "default_combat": {
-            "name": "Gobelin",
-            "hp": 50,
-            "max_hp": 50
-        }
-    }
+	"id": 1,
+	"boss": {
+		"name": "Démon",
+		"hp": 500,
+		"max_hp": 500
+	},
+	"player": {
+		"hp": 50,
+		"max_hp": 50
+	},
+	"nodes": [
+		{
+			"id": "start",
+			"type": "start",
+			"position": [515, 600],
+			"connections": ["c1"]
+		},
+		{
+			"id": "c1",
+			"type": "combat",
+			"position": [515, 490],
+			"connections": ["c_left", "merchant"]
+		},
+		{
+			"id": "c_left",
+			"type": "combat",
+			"position": [360, 385],
+			"connections": ["c_ul"]
+		},
+		{
+			"id": "merchant",
+			"type": "merchant",
+			"position": [595, 385],
+			"connections": ["c_ul", "c_ur"]
+		},
+		{
+			"id": "c_ul",
+			"type": "combat",
+			"position": [390, 265],
+			"connections": ["boss"]
+		},
+		{
+			"id": "c_ur",
+			"type": "combat",
+			"position": [685, 265],
+			"connections": ["boss"]
+		},
+		{
+			"id": "boss",
+			"type": "boss",
+			"position": [525, 150],
+			"connections": []
+		}
+	],
+	"enemies": {
+		"default_combat": {
+			"name": "Gobelin",
+			"hp": 50,
+			"max_hp": 50
+		}
+	}
 }
