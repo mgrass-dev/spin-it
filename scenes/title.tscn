@@ -6,4 +6,43 @@
 [node name="Title" type="Node2D"]
 script = ExtResource("1_title")
 
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Background" type="ColorRect" parent="CanvasLayer"]
+color = Color(0.06, 0.04, 0.08)
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer"]
+text = "Spin it"
+offset_left = 0.0
+offset_top = 130.0
+offset_right = 1280.0
+offset_bottom = 240.0
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.92, 0.78, 0.25)
+theme_override_font_sizes/font_size = 90
+
+[node name="ButtonVBox" type="VBoxContainer" parent="CanvasLayer"]
+offset_left = 490.0
+offset_top = 310.0
+offset_right = 790.0
+offset_bottom = 610.0
+theme_override_constants/separation = 18
+
+[node name="ContinueButton" type="Button" parent="CanvasLayer/ButtonVBox"]
+custom_minimum_size = Vector2(300, 56)
+theme_override_font_sizes/font_size = 22
+text = "Continue"
+
+[node name="NewGameButton" type="Button" parent="CanvasLayer/ButtonVBox"]
+custom_minimum_size = Vector2(300, 56)
+theme_override_font_sizes/font_size = 22
+text = "New Game"
+
+[node name="SettingsButton" type="Button" parent="CanvasLayer/ButtonVBox"]
+custom_minimum_size = Vector2(300, 56)
+theme_override_font_sizes/font_size = 22
+text = "Settings  ⚙"
+
 [node name="SettingsMenu" parent="." instance=ExtResource("2_settings")]
