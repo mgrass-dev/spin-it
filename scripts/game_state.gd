@@ -3,6 +3,7 @@ extends Node
 const SAVE_PATH := "user://save.json"
 
 var current_level: int = 1
+var level_seed: int = 0
 var completed_nodes: Array[String] = []
 var current_combat_node_id: String = ""
 
@@ -19,10 +20,20 @@ func start_combat(node_id: String, level_data: Dictionary) -> void:
 		var p: Dictionary = level_data.get("player", {})
 		player_max_hp = p.get("max_hp", 50)
 		player_hp = p.get("hp", player_max_hp)
-	var e: Dictionary = level_data.get("enemies", {}).get("default_combat", {})
-	enemy_max_hp = e.get("max_hp", 50)
-	enemy_hp = e.get("hp", enemy_max_hp)
-	enemy_name = e.get("name", "Enemy")
+
+	var enemy_data: Dictionary
+	for nd in level_data.get("nodes", []):
+		if nd["id"] == node_id:
+			if nd.get("type", "") == "boss":
+				enemy_data = level_data.get("boss", {})
+			else:
+				enemy_data = level_data.get("enemies", {}).get("default_combat", {})
+			break
+	if enemy_data.is_empty():
+		enemy_data = level_data.get("enemies", {}).get("default_combat", {})
+	enemy_max_hp = enemy_data.get("max_hp", 50)
+	enemy_hp = enemy_data.get("hp", enemy_max_hp)
+	enemy_name = enemy_data.get("name", "Enemy")
 
 func complete_current_combat() -> void:
 	if current_combat_node_id != "" and current_combat_node_id not in completed_nodes:
@@ -36,6 +47,7 @@ func has_save() -> bool:
 func save_game() -> void:
 	var data := {
 		"current_level": current_level,
+		"level_seed": level_seed,
 		"completed_nodes": completed_nodes,
 		"player_hp": player_hp,
 		"player_max_hp": player_max_hp,
@@ -54,6 +66,7 @@ func load_game() -> void:
 	file.close()
 	var data: Dictionary = json.get_data()
 	current_level = data.get("current_level", 1)
+	level_seed = data.get("level_seed", 0)
 	completed_nodes.clear()
 	for s in data.get("completed_nodes", []):
 		completed_nodes.append(str(s))
@@ -62,6 +75,7 @@ func load_game() -> void:
 
 func reset_game() -> void:
 	current_level = 1
+	level_seed = randi()
 	completed_nodes = []
 	current_combat_node_id = ""
 	player_hp = 0
