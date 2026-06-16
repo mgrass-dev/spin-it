@@ -6,56 +6,64 @@
 [ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="4_settings"]
 [ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/hp_bar.tscn" id="5_hpbar"]
 
-[node name="Map" type="Node2D"]
+[node name="Map" type="Node2D" unique_id=585676313]
 script = ExtResource("1_script")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1205054070]
 anchor_mode = 0
 
-[node name="Background" type="Sprite2D" parent="."]
+[node name="Background" type="Sprite2D" parent="." unique_id=1597721443]
 position = Vector2(640, 360)
 scale = Vector2(0.66667, 0.66667)
 texture = ExtResource("2_bg")
 
-[node name="LegendPanel" type="Sprite2D" parent="."]
-position = Vector2(640, 360)
-scale = Vector2(0.66667, 0.66667)
+[node name="LegendPanel" type="Sprite2D" parent="." unique_id=864277671]
+position = Vector2(279.00006, 349.00003)
+scale = Vector2(1.0666667, 1.1)
 texture = ExtResource("3_legend")
 
-[node name="PathsLayer" type="Node2D" parent="."]
+[node name="PathsLayer" type="Node2D" parent="." unique_id=591612369]
 
-[node name="NodesLayer" type="Node2D" parent="."]
+[node name="NodesLayer" type="Node2D" parent="." unique_id=1314010144]
 
-[node name="UILayer" type="CanvasLayer" parent="."]
-layer = 1
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=1751783969]
 
-[node name="BossHPBar" parent="UILayer" instance=ExtResource("5_hpbar")]
+[node name="BossHPBar" parent="UILayer" unique_id=1997170844 instance=ExtResource("5_hpbar")]
 offset_left = 20.0
 offset_top = 10.0
 offset_right = 360.0
 offset_bottom = 62.0
 
-[node name="InfoPanel" type="Panel" parent="UILayer"]
+[node name="InfoPanel" type="Panel" parent="UILayer" unique_id=589088668]
+visible = false
 offset_left = 952.0
 offset_top = 80.0
 offset_right = 1240.0
 offset_bottom = 700.0
-visible = false
 
-[node name="MobHPBar" parent="UILayer/InfoPanel" instance=ExtResource("5_hpbar")]
-offset_left = 8.0
-offset_top = 168.0
-offset_right = 280.0
-offset_bottom = 254.0
+[node name="MobHPBar" parent="UILayer/InfoPanel" unique_id=1301830699 instance=ExtResource("5_hpbar")]
+layout_mode = 1
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = 15.0
+offset_right = -10.0
+offset_bottom = 85.0
+grow_horizontal = 2
 icon_size = Vector2(60, 60)
 font_size_name = 16
 
-[node name="StartButton" type="Button" parent="UILayer/InfoPanel"]
-offset_left = 44.0
-offset_top = 400.0
-offset_right = 244.0
-offset_bottom = 440.0
-text = "Start"
+[node name="StartButton" type="Button" parent="UILayer/InfoPanel" unique_id=116838596]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -55.0
+offset_right = -20.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 0
 theme_override_font_sizes/font_size = 20
+text = "Start"
 
-[node name="SettingsMenu" parent="." instance=ExtResource("4_settings")]
+[node name="SettingsMenu" parent="." unique_id=1086407467 instance=ExtResource("4_settings")]
