@@ -9,10 +9,10 @@ const DASH_LEN := 18.0
 const GAP_LEN := 12.0
 
 const _NODE_ICONS := {
-	"combat": "res://sprites/map/icone_combat.png",
-	"boss": "res://sprites/map/icone_boss.png",
-	"merchant": "res://sprites/map/icone_marchand.png",
-	"start": "res://sprites/map/icone_départ.png",
+	"combat": "res://sprites/map/icon_combat.png",
+	"boss": "res://sprites/map/icon_boss.png",
+	"merchant": "res://sprites/map/icon_merchant.png",
+	"start": "res://sprites/map/icon_start.png",
 }
 
 @onready var paths_layer: Node2D = $PathsLayer

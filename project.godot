@@ -8,6 +8,10 @@
 
 config_version=5
 
+[editor_plugins]
+
+enabled=PackedStringArray("Gut")
+
 [application]
 
 config/name="Spin it"

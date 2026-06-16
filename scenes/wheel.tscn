@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b1oi25satqc2b"]
 
-[ext_resource type="Texture2D" uid="uid://cxdu4oigagsqr" path="res://sprites/roue/roue_fond.png" id="1_hm1pg"]
-[ext_resource type="Texture2D" uid="uid://ds4junayrl3op" path="res://sprites/roue/roue_milieu.png" id="2_c65p7"]
+[ext_resource type="Texture2D" uid="uid://cxdu4oigagsqr" path="res://sprites/roue/wheel_bg.png" id="1_hm1pg"]
+[ext_resource type="Texture2D" uid="uid://ds4junayrl3op" path="res://sprites/roue/wheel_center.png" id="2_c65p7"]
 [ext_resource type="Script" uid="uid://dnuk7wiqvkgh6" path="res://scripts/wheel.gd" id="3_b52vq"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_c65p7"]
