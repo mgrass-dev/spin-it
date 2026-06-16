@@ -139,14 +139,14 @@ func _on_node_selected(mn: MapNode) -> void:
 	match mn.node_type:
 		"combat":
 			var e: Dictionary = level_data.get("enemies", {}).get("default_combat", {})
-			mob_name_label.text = e.get("name", "Inconnu")
-			mob_hp_label.text = "PV : %d / %d" % [e.get("hp", 0), e.get("max_hp", 0)]
+			mob_name_label.text = e.get("name", "Unknown")
+			mob_hp_label.text = "HP: %d / %d" % [e.get("hp", 0), e.get("max_hp", 0)]
 		"boss":
 			var b: Dictionary = level_data.get("boss", {})
-			mob_name_label.text = b.get("name", "Inconnu")
-			mob_hp_label.text = "PV : %d / %d" % [b.get("hp", 0), b.get("max_hp", 0)]
+			mob_name_label.text = b.get("name", "Unknown")
+			mob_hp_label.text = "HP: %d / %d" % [b.get("hp", 0), b.get("max_hp", 0)]
 		"merchant":
-			mob_name_label.text = "Marchand"
+			mob_name_label.text = "Merchant"
 			mob_hp_label.text = ""
 		_:
 			mob_name_label.text = ""
@@ -155,8 +155,8 @@ func _on_node_selected(mn: MapNode) -> void:
 func _type_label(type: String) -> String:
 	match type:
 		"combat": return "Combat"
-		"boss": return "Boss Final"
-		"merchant": return "Marchand"
+		"boss": return "Final Boss"
+		"merchant": return "Merchant"
 		_: return ""
 
 func _on_start_pressed() -> void:

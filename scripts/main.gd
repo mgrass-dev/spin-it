@@ -181,13 +181,13 @@ func _start_player_turn() -> void:
 	_current_turn = Turn.PLAYER
 	_enemy_section_overlay.visible = true
 	_player_section_overlay.visible = false
-	_add_player_log("— Tour %d : votre tour —" % _turn_number)
+	_add_player_log("— Turn %d: your turn —" % _turn_number)
 
 func _start_enemy_turn() -> void:
 	_current_turn = Turn.ENEMY
 	_enemy_section_overlay.visible = false
 	_player_section_overlay.visible = true
-	_add_enemy_log("— Tour %d : tour ennemi —" % _turn_number)
+	_add_enemy_log("— Turn %d: enemy's turn —" % _turn_number)
 
 	_enemy_ball.visible = true
 	enemy_wheel.start_spinning()
@@ -293,11 +293,11 @@ func _apply_player_damage(amount: int) -> void:
 	_update_hp_labels()
 	ball.return_to_slot()
 	ball.visible = true
-	_add_player_log("Vous infligez %d dégâts  (ennemi : %d PV)" % [amount, GameState.enemy_hp])
+	_add_player_log("You deal %d damage  (enemy: %d HP)" % [amount, GameState.enemy_hp])
 	if GameState.enemy_hp <= 0:
 		_combat_over = true
 		GameState.complete_current_combat()
-		_add_player_log("Victoire !")
+		_add_player_log("Victory!")
 		_show_end_screen()
 	else:
 		_start_enemy_turn()
@@ -306,11 +306,11 @@ func _apply_enemy_damage(amount: int) -> void:
 	GameState.player_hp = maxi(0, GameState.player_hp - amount)
 	_player_hp_bar.value = GameState.player_hp
 	_update_hp_labels()
-	_add_enemy_log("L'ennemi inflige %d dégâts  (vous : %d PV)" % [amount, GameState.player_hp])
+	_add_enemy_log("Enemy deals %d damage  (you: %d HP)" % [amount, GameState.player_hp])
 	_turn_number += 1
 	if GameState.player_hp <= 0:
 		_combat_over = true
-		_add_enemy_log("Défaite...")
+		_add_enemy_log("Defeat...")
 		_show_end_screen()
 	else:
 		_start_player_turn()
@@ -330,7 +330,7 @@ func _show_end_screen() -> void:
 	canvas.add_child(overlay)
 
 	var btn := Button.new()
-	btn.text = "Retour à la carte"
+	btn.text = "Back to map"
 	btn.size = Vector2(300, 48)
 	btn.position = Vector2(640 - 150, 360 - 24)
 	btn.add_theme_font_size_override("font_size", 20)

@@ -7,6 +7,7 @@ func _ready() -> void:
 
 func _build_ui() -> void:
 	var canvas := CanvasLayer.new()
+	canvas.layer = 0
 	add_child(canvas)
 
 	var bg := ColorRect.new()
@@ -31,15 +32,15 @@ func _build_ui() -> void:
 	canvas.add_child(vbox)
 
 	if GameState.has_save():
-		var btn := _make_button("Continuer")
+		var btn := _make_button("Continue")
 		vbox.add_child(btn)
 		btn.pressed.connect(_on_continue)
 
-	var new_btn := _make_button("Nouvelle partie")
+	var new_btn := _make_button("New Game")
 	vbox.add_child(new_btn)
 	new_btn.pressed.connect(_on_new_game)
 
-	var settings_btn := _make_button("Paramètres  ⚙")
+	var settings_btn := _make_button("Settings  ⚙")
 	vbox.add_child(settings_btn)
 	settings_btn.pressed.connect(_on_settings)
 
