@@ -41,28 +41,34 @@ offset_top = 80.0
 offset_right = 1240.0
 offset_bottom = 700.0
 
-[node name="MobHPBar" parent="UILayer/InfoPanel" unique_id=1301830699 instance=ExtResource("5_hpbar")]
+[node name="Margins" type="MarginContainer" parent="UILayer/InfoPanel"]
 layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = 10.0
-offset_top = 15.0
-offset_right = -10.0
-offset_bottom = 85.0
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 14
+
+[node name="Layout" type="VBoxContainer" parent="UILayer/InfoPanel/Margins"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="MobHPBar" parent="UILayer/InfoPanel/Margins/Layout" unique_id=1301830699 instance=ExtResource("5_hpbar")]
+layout_mode = 2
 icon_size = Vector2(60, 60)
 font_size_name = 16
 
-[node name="StartButton" type="Button" parent="UILayer/InfoPanel" unique_id=116838596]
-layout_mode = 1
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = -55.0
-offset_right = -20.0
-offset_bottom = -15.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="Spacer" type="Control" parent="UILayer/InfoPanel/Margins/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StartButton" type="Button" parent="UILayer/InfoPanel/Margins/Layout" unique_id=116838596]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
 theme_override_font_sizes/font_size = 20
 text = "Start"
 

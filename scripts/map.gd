@@ -20,8 +20,8 @@ const _NODE_ICONS := {
 @onready var legend_panel: Sprite2D = $LegendPanel
 @onready var boss_hp_bar: HPBar = $UILayer/BossHPBar
 @onready var info_panel: Control = $UILayer/InfoPanel
-@onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/MobHPBar
-@onready var start_button: Button = $UILayer/InfoPanel/StartButton
+@onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/Margins/Layout/MobHPBar
+@onready var start_button: Button = $UILayer/InfoPanel/Margins/Layout/StartButton
 
 # Pixel bounds of the brown panel inside the 1920×1080 map_legende.png sprite
 const _BROWN_RECT := Rect2(1600, 363, 290, 426)
