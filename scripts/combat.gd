@@ -2,6 +2,19 @@ extends Node2D
 
 enum Turn { PLAYER, ENEMY }
 
+const VIEWPORT_SIZE := Vector2(1280, 720)
+const OVERLAY_ALPHA := 0xA0 / 255.0
+const OVERLAY_SPLIT_Y := 315
+
+const WHEEL_VISUAL_RADIUS := 250.0
+const BALL_APPROACH_DURATION := 0.5
+const ENEMY_SPIN_DELAY := 2.0
+
+const PLAYER_LOG_POS := Vector2(8, 510)
+const PLAYER_LOG_SIZE := Vector2(250, 200)
+const ENEMY_LOG_POS := Vector2(1022, 8)
+const ENEMY_LOG_SIZE := Vector2(250, 300)
+
 @onready var player_wheel: Node2D = $PlayerWheel
 @onready var enemy_wheel: Node2D = $EnemyWheel
 @onready var ball: Node2D = $Ball
@@ -9,10 +22,6 @@ enum Turn { PLAYER, ENEMY }
 @onready var _ui_layer: CanvasLayer = $UILayer
 @onready var _enemy_hp_bar: HPBar = $UILayer/EnemyHPBar
 @onready var _player_hp_bar: HPBar = $UILayer/PlayerHPBar
-
-const WHEEL_VISUAL_RADIUS := 250.0
-const BALL_APPROACH_DURATION := 0.5
-const ENEMY_SPIN_DELAY := 2.0
 
 var _ball_over_wheel := false
 var _ball_rolling := false
@@ -25,10 +34,8 @@ var _turn_number: int = 1
 
 var _enemy_section_overlay: ColorRect
 var _player_section_overlay: ColorRect
-var _player_log_vbox: VBoxContainer
-var _enemy_log_vbox: VBoxContainer
-var _player_log_scroll: ScrollContainer
-var _enemy_log_scroll: ScrollContainer
+var _player_log: CombatLogPanel
+var _enemy_log: CombatLogPanel
 var _enemy_ball: Sprite2D
 
 func _ready() -> void:
@@ -37,7 +44,6 @@ func _ready() -> void:
 		DisplayServer.window_set_size(screen_size)
 		DisplayServer.window_set_position(Vector2i.ZERO)
 
-	ball.picked_up.connect(_on_ball_picked_up)
 	ball.released.connect(_on_ball_released)
 	player_wheel.spin_completed.connect(_on_spin_completed)
 	enemy_wheel.spin_completed.connect(_on_enemy_spin_completed)
@@ -48,8 +54,6 @@ func _ready() -> void:
 	_setup_logs()
 	_setup_enemy_ball()
 	_start_player_turn()
-
-# ─── Setup ───────────────────────────────────────────────────────────────────
 
 func _setup_hp_bars() -> void:
 	if GameState.enemy_max_hp == 0:
@@ -68,22 +72,21 @@ func _setup_hp_bars() -> void:
 	_player_hp_bar.setup(null, "", GameState.player_hp, GameState.player_max_hp)
 
 func _setup_section_overlays() -> void:
-	# Layer 2 sits above the Node2D world but below the HP-bar UILayer (5)
 	var layer := CanvasLayer.new()
 	layer.layer = 2
 	add_child(layer)
 
 	_enemy_section_overlay = ColorRect.new()
-	_enemy_section_overlay.color = Color(0, 0, 0, 0xA0 / 255.0)
+	_enemy_section_overlay.color = Color(0, 0, 0, OVERLAY_ALPHA)
 	_enemy_section_overlay.position = Vector2.ZERO
-	_enemy_section_overlay.size = Vector2(1280, 315)
+	_enemy_section_overlay.size = Vector2(VIEWPORT_SIZE.x, OVERLAY_SPLIT_Y)
 	_enemy_section_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_enemy_section_overlay)
 
 	_player_section_overlay = ColorRect.new()
-	_player_section_overlay.color = Color(0, 0, 0, 0xA0 / 255.0)
-	_player_section_overlay.position = Vector2(0, 315)
-	_player_section_overlay.size = Vector2(1280, 405)
+	_player_section_overlay.color = Color(0, 0, 0, OVERLAY_ALPHA)
+	_player_section_overlay.position = Vector2(0, OVERLAY_SPLIT_Y)
+	_player_section_overlay.size = Vector2(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y - OVERLAY_SPLIT_Y)
 	_player_section_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_player_section_overlay)
 
@@ -96,55 +99,21 @@ func _setup_enemy_ball() -> void:
 	add_child(_enemy_ball)
 
 func _setup_logs() -> void:
-	# Player log — bottom-left of player section, left of the wheel
-	var pl := _make_log(Vector2(8, 510), Vector2(250, 200))
-	_player_log_scroll = pl[0]
-	_player_log_vbox = pl[1]
+	_player_log = CombatLogPanel.new()
+	_player_log.position = PLAYER_LOG_POS
+	_player_log.size = PLAYER_LOG_SIZE
+	_ui_layer.add_child(_player_log)
 
-	# Enemy log — top-right of enemy section, right of the wheel
-	var el := _make_log(Vector2(1022, 8), Vector2(250, 300))
-	_enemy_log_scroll = el[0]
-	_enemy_log_vbox = el[1]
-
-func _make_log(pos: Vector2, sz: Vector2) -> Array:
-	var panel := Panel.new()
-	panel.position = pos
-	panel.size = sz
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0, 0, 0, 0.5)
-	style.set_corner_radius_all(4)
-	panel.add_theme_stylebox_override("panel", style)
-	_ui_layer.add_child(panel)
-
-	var scroll := ScrollContainer.new()
-	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.add_child(scroll)
-
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(vbox)
-
-	return [scroll, vbox]
-
-# ─── Logging ─────────────────────────────────────────────────────────────────
-
-func _add_log(vbox: VBoxContainer, scroll: ScrollContainer, text: String, color: Color) -> void:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", 11)
-	label.add_theme_color_override("font_color", color)
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	vbox.add_child(label)
-	await get_tree().process_frame
-	scroll.scroll_vertical = 999999
+	_enemy_log = CombatLogPanel.new()
+	_enemy_log.position = ENEMY_LOG_POS
+	_enemy_log.size = ENEMY_LOG_SIZE
+	_ui_layer.add_child(_enemy_log)
 
 func _add_player_log(text: String) -> void:
-	_add_log(_player_log_vbox, _player_log_scroll, text, Color(1.0, 0.85, 0.7))
+	_player_log.add_line(text, Color(1.0, 0.85, 0.7))
 
 func _add_enemy_log(text: String) -> void:
-	_add_log(_enemy_log_vbox, _enemy_log_scroll, text, Color(0.7, 0.85, 1.0))
-
-# ─── Turn management ─────────────────────────────────────────────────────────
+	_enemy_log.add_line(text, Color(0.7, 0.85, 1.0))
 
 func _start_player_turn() -> void:
 	_current_turn = Turn.PLAYER
@@ -164,14 +133,12 @@ func _start_enemy_turn() -> void:
 	if not _combat_over:
 		enemy_wheel.stop_on_random_item()
 
-# ─── Process / Ball ──────────────────────────────────────────────────────────
-
 func _process(delta: float) -> void:
 	if _combat_over:
 		return
 
 	if _current_turn == Turn.ENEMY:
-		if _enemy_ball != null and _enemy_ball.visible:
+		if _enemy_ball.visible:
 			var spin_r: float = enemy_wheel.get_spinning_rotation()
 			var radius: float = enemy_wheel.get_item_world_radius()
 			_enemy_ball.global_position = enemy_wheel.global_position + \
@@ -205,9 +172,6 @@ func _process(delta: float) -> void:
 		else:
 			ball.global_position = target_pos
 
-func _on_ball_picked_up() -> void:
-	pass
-
 func _on_ball_released(_world_pos: Vector2) -> void:
 	if _combat_over or _current_turn == Turn.ENEMY:
 		ball.return_to_slot()
@@ -227,16 +191,12 @@ func _launch_ball_on_wheel() -> void:
 		return
 
 	var target_r: float = float(spin_info["target_r"])
-	# Offset so ball ends at world angle -PI/2 (the pointer/top) when spinning_part
-	# reaches target_r — which is exactly where the winning wheel_item will be.
 	_ball_offset_angle = -PI / 2.0 - target_r
 	_ball_approach_start = ball.global_position
 	_ball_approach_time = BALL_APPROACH_DURATION
 
 	ball.start_rolling()
 	_ball_rolling = true
-
-# ─── Spin callbacks ──────────────────────────────────────────────────────────
 
 func _on_spin_completed(item: WheelItem) -> void:
 	_ball_rolling = false
@@ -248,8 +208,6 @@ func _on_enemy_spin_completed(item: WheelItem) -> void:
 		return
 	_enemy_ball.visible = false
 	damage_display.show_damage(item.modifier)
-
-# ─── Damage resolution ───────────────────────────────────────────────────────
 
 func _on_damage_applied(amount: int) -> void:
 	match _current_turn:
@@ -282,8 +240,6 @@ func _apply_enemy_damage(amount: int) -> void:
 	else:
 		_start_player_turn()
 
-# ─── End screen ──────────────────────────────────────────────────────────────
-
 func _show_end_screen() -> void:
 	var canvas := CanvasLayer.new()
 	canvas.layer = 15
@@ -292,14 +248,14 @@ func _show_end_screen() -> void:
 	var overlay := ColorRect.new()
 	overlay.color = Color(0, 0, 0, 0.502)
 	overlay.position = Vector2.ZERO
-	overlay.size = Vector2(1280, 720)
+	overlay.size = VIEWPORT_SIZE
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.add_child(overlay)
 
 	var btn := Button.new()
 	btn.text = "Back to map"
 	btn.size = Vector2(300, 48)
-	btn.position = Vector2(640 - 150, 360 - 24)
+	btn.position = Vector2(VIEWPORT_SIZE.x * 0.5 - 150, VIEWPORT_SIZE.y * 0.5 - 24)
 	btn.add_theme_font_size_override("font_size", 20)
 	btn.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/map.tscn"))
 	canvas.add_child(btn)
