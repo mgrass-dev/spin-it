@@ -23,7 +23,7 @@ const _NODE_ICONS := {
 @onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/Margins/Layout/MobHPBar
 @onready var start_button: Button = $UILayer/InfoPanel/Margins/Layout/StartButton
 
-# Pixel bounds of the brown panel inside the 1920×1080 map_legende.png sprite
+# Pixel bounds of the brown panel inside the 1920×1080 map_legend.png sprite
 const _BROWN_RECT := Rect2(1600, 363, 290, 426)
 
 var level_data: Dictionary = {}
