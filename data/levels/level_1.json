@@ -56,8 +56,8 @@
 	"enemies": {
 		"default_combat": {
 			"name": "Gobelin",
-			"hp": 50,
-			"max_hp": 50
+			"hp": 25,
+			"max_hp": 25
 		}
 	}
 }
