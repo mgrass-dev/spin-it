@@ -8,10 +8,9 @@
 [ext_resource type="Texture2D" uid="uid://dgu3bykqg77sd" path="res://sprites/background/barre_de_séparation.png" id="5_separator"]
 [ext_resource type="Texture2D" uid="uid://d08syq3ek6nee" path="res://sprites/hud/barre_de_vie_ennemi.png" id="6_enemy_hp"]
 [ext_resource type="Texture2D" uid="uid://bqedb6wkxmhsu" path="res://sprites/hud/barre_de_vie_perso.png" id="7_player_hp"]
-[ext_resource type="Texture2D" uid="uid://d3f6vbykshamd" path="res://sprites/hud/hud_portemonnaie.png" id="8_wallet"]
 [ext_resource type="Texture2D" uid="uid://crvcgeqwk3yuy" path="res://sprites/hud/hud_bille.png" id="9_hud_ball"]
-[ext_resource type="Texture2D" uid="uid://cv2fo2kuwiwf1" path="res://sprites/hud/hud_modificateur.png" id="10_modifier"]
-[ext_resource type="PackedScene" uid="uid://cdam8ge5x3w7ba" path="res://scenes/damage_display.tscn" id="11_damage"]
+[ext_resource type="PackedScene" uid="uid://bpbktemfxbgni" path="res://scenes/damage_display.tscn" id="11_damage"]
+[ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/settings_menu.tscn" id="11_ya4ey"]
 
 [node name="Main" type="Node2D" unique_id=1165397904]
 script = ExtResource("1_script")
@@ -20,17 +19,18 @@ script = ExtResource("1_script")
 anchor_mode = 0
 
 [node name="EnemyBackground" type="Sprite2D" parent="." unique_id=200000001]
-position = Vector2(480, 157.50002)
-scale = Vector2(1, 1.0500001)
+position = Vector2(639.99994, 210)
+scale = Vector2(1.3333333, 1.4)
 texture = ExtResource("3_enemy_bg")
 
 [node name="PlayerBackground" type="Sprite2D" parent="." unique_id=200000002]
-position = Vector2(480, 462.5)
-scale = Vector2(1, 1.0500001)
+position = Vector2(639.99994, 515)
+scale = Vector2(1.3333333, 1.4)
 texture = ExtResource("4_player_bg")
 
 [node name="Separator" type="Sprite2D" parent="." unique_id=200000003]
-position = Vector2(480, 310)
+position = Vector2(647.9999, 313.5)
+scale = Vector2(1.3499997, 1.3499997)
 texture = ExtResource("5_separator")
 
 [node name="EnemyHealthBar" type="Sprite2D" parent="." unique_id=200000004]
@@ -38,31 +38,26 @@ position = Vector2(170, 40)
 texture = ExtResource("6_enemy_hp")
 
 [node name="EnemyWheel" parent="." unique_id=200000005 instance=ExtResource("1_wheel")]
-position = Vector2(820, 155)
+position = Vector2(663, 155)
 scale = Vector2(0.5, 0.5)
 
 [node name="PlayerWheel" parent="." unique_id=1552624772 instance=ExtResource("1_wheel")]
-position = Vector2(152, 468.99997)
-scale = Vector2(0.55, 0.55)
+position = Vector2(666, 511)
+scale = Vector2(0.75, 0.75)
 
 [node name="PlayerHealthBar" type="Sprite2D" parent="." unique_id=200000006]
-position = Vector2(799, 350)
+position = Vector2(1119, 357)
 texture = ExtResource("7_player_hp")
 
-[node name="HudWallet" type="Sprite2D" parent="." unique_id=200000007]
-position = Vector2(480, 471)
-texture = ExtResource("8_wallet")
-
 [node name="HudBall" type="Sprite2D" parent="." unique_id=200000008]
-position = Vector2(489, 570)
+position = Vector2(1086, 658)
+scale = Vector2(1.1999999, 1.2)
 texture = ExtResource("9_hud_ball")
-
-[node name="HudModifier" type="Sprite2D" parent="." unique_id=200000009]
-position = Vector2(802, 510)
-texture = ExtResource("10_modifier")
 
 [node name="Ball" parent="." unique_id=200000010 instance=ExtResource("2_ball")]
 z_index = 2
-position = Vector2(380, 566)
+position = Vector2(956, 652)
 
 [node name="DamageDisplay" parent="." unique_id=200000011 instance=ExtResource("11_damage")]
+
+[node name="SettingsMenu" parent="." unique_id=623952953 instance=ExtResource("11_ya4ey")]

@@ -14,6 +14,11 @@ var _ball_approach_start := Vector2.ZERO
 var _ball_approach_time := 0.0
 
 func _ready() -> void:
+	if not OS.has_feature("editor"):
+		var screen_size := DisplayServer.screen_get_size()
+		DisplayServer.window_set_size(screen_size)
+		DisplayServer.window_set_position(Vector2i.ZERO)
+	
 	ball.picked_up.connect(_on_ball_picked_up)
 	ball.released.connect(_on_ball_released)
 	player_wheel.spin_completed.connect(_on_spin_completed)
