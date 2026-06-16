@@ -1,9 +1,9 @@
 extends RefCounted
 
-enum Rarity { COMMUN, RARE, EPIQUE, LEGENDAIRE }
+enum Rarity { COMMON, RARE, EPIC, LEGENDARY }
 enum ItemType { BALL, MODIFIER, WHEEL_ITEM, OTHER }
 
-const RARITY_NAMES := ["commun", "rare", "épique", "légendaire"]
+const RARITY_NAMES := ["common", "rare", "epic", "legendary"]
 const TYPE_NAMES := ["ball", "modifier", "wheel_item", "other"]
 
 static func create(data: Dictionary) -> Dictionary:
@@ -13,7 +13,7 @@ static func create(data: Dictionary) -> Dictionary:
 		"description": data.get("description", ""),
 		"type": data.get("type", TYPE_NAMES[ItemType.OTHER]),
 		"icon_path": data.get("icon_path", ""),
-		"rarity": data.get("rarity", RARITY_NAMES[Rarity.COMMUN]),
+		"rarity": data.get("rarity", RARITY_NAMES[Rarity.COMMON]),
 		"effects": data.get("effects", {}),
 	}
 

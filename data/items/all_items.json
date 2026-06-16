@@ -5,7 +5,7 @@
 		"description": "Multiplies the total of your 3 throws by 2.",
 		"type": "modifier",
 		"icon_path": "res://sprites/roue/slot_red.png",
-		"rarity": "légendaire",
+		"rarity": "legendary",
 		"cost": 10,
 		"effects": {
 			"modifier_type": "sum_x2"
@@ -41,7 +41,7 @@
 		"description": "If all 3 throws are even numbers, total is multiplied by 2.",
 		"type": "modifier",
 		"icon_path": "res://sprites/roue/slot_black.png",
-		"rarity": "épique",
+		"rarity": "epic",
 		"cost": 8,
 		"effects": {
 			"modifier_type": "all_even_x2"
@@ -53,7 +53,7 @@
 		"description": "If all 3 throws are odd numbers, total is multiplied by 2.",
 		"type": "modifier",
 		"icon_path": "res://sprites/roue/slot_red.png",
-		"rarity": "épique",
+		"rarity": "epic",
 		"cost": 8,
 		"effects": {
 			"modifier_type": "all_odd_x2"
@@ -78,7 +78,7 @@
 		"description": "A black slot dealing 18 damage.",
 		"type": "wheel_item",
 		"icon_path": "res://sprites/roue/slot_black.png",
-		"rarity": "commun",
+		"rarity": "common",
 		"cost": 3,
 		"effects": {
 			"value": 18,
@@ -91,7 +91,7 @@
 		"description": "A red slot dealing 15 damage.",
 		"type": "wheel_item",
 		"icon_path": "res://sprites/roue/slot_red.png",
-		"rarity": "commun",
+		"rarity": "common",
 		"cost": 3,
 		"effects": {
 			"value": 15,
@@ -104,7 +104,7 @@
 		"description": "A black slot dealing 7 damage.",
 		"type": "wheel_item",
 		"icon_path": "res://sprites/roue/slot_black.png",
-		"rarity": "commun",
+		"rarity": "common",
 		"cost": 2,
 		"effects": {
 			"value": 7,

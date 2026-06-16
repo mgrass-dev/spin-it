@@ -1,12 +1,17 @@
 extends CanvasLayer
 
-const CARD_SIZE := Vector2(200, 280)
-const CARD_SPACING := 30
+const CARD_SIZE := Vector2(160, 240)
+const CARD_SPACING := 24
 
 const SLOT_BLACK = preload("res://sprites/roue/slot_black.png")
 const SLOT_RED = preload("res://sprites/roue/slot_red.png")
 const WHEEL_BG = preload("res://sprites/roue/wheel_bg.png")
 const WHEEL_CENTER = preload("res://sprites/roue/wheel_center.png")
+
+const CARD_BG_COMMON = preload("res://sprites/shop/card_common_background.png")
+const CARD_BG_RARE = preload("res://sprites/shop/card_rare_background.png")
+const CARD_BG_EPIC = preload("res://sprites/shop/card_epic_background.png")
+const CARD_BG_LEGENDARY = preload("res://sprites/shop/card_legendary_background.png")
 
 const MINI_WHEEL_RADIUS := 145.0
 const MINI_WHEEL_SCALE := 0.55
@@ -83,53 +88,79 @@ func _build_ui() -> void:
 	add_child(pass_btn)
 
 func _make_card(item_data: Dictionary, idx: int) -> Control:
-	var card := ColorRect.new()
-	card.size = CARD_SIZE
-	card.color = Color(0.15, 0.15, 0.2, 0.95)
+	var rarity: String = item_data.get("rarity", "common")
+	var card_bg_textures := {
+		"common": CARD_BG_COMMON,
+		"rare": CARD_BG_RARE,
+		"epic": CARD_BG_EPIC,
+		"legendary": CARD_BG_LEGENDARY,
+	}
 
-	var icon := Sprite2D.new()
-	icon.texture = load(item_data.get("icon_path", ""))
-	icon.position = Vector2(CARD_SIZE.x / 2, 50)
-	icon.scale = Vector2(2, 2)
-	card.add_child(icon)
+	var card := TextureRect.new()
+	card.texture = card_bg_textures.get(rarity, CARD_BG_COMMON)
+	card.size = CARD_SIZE
+	card.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	card.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	card.pivot_offset = CARD_SIZE / 2
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	card.mouse_entered.connect(_on_card_hover.bind(card, true))
+	card.mouse_exited.connect(_on_card_hover.bind(card, false))
 
 	var name_lbl := Label.new()
 	name_lbl.text = item_data.get("name", "")
-	name_lbl.add_theme_font_size_override("font_size", 16)
+	name_lbl.add_theme_font_size_override("font_size", 13)
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.position = Vector2(0, 90)
-	name_lbl.size = Vector2(CARD_SIZE.x, 25)
+	name_lbl.position = Vector2(0, 6)
+	name_lbl.size = Vector2(CARD_SIZE.x, 20)
 	card.add_child(name_lbl)
 
-	var rarity_lbl := Label.new()
-	var rarity: String = item_data.get("rarity", "commun")
-	rarity_lbl.text = rarity
-	rarity_lbl.add_theme_font_size_override("font_size", 12)
-	rarity_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	rarity_lbl.position = Vector2(0, 115)
-	rarity_lbl.size = Vector2(CARD_SIZE.x, 20)
-	var rarity_colors := {"commun": Color(0.8, 0.8, 0.8), "rare": Color(0.3, 0.6, 1.0), "épique": Color(0.7, 0.3, 0.9), "légendaire": Color(1.0, 0.7, 0.0)}
-	rarity_lbl.add_theme_color_override("font_color", rarity_colors.get(rarity, Color.WHITE))
-	card.add_child(rarity_lbl)
+	var icon := Sprite2D.new()
+	icon.texture = load(item_data.get("icon_path", ""))
+	icon.position = Vector2(CARD_SIZE.x / 2, 98)
+	icon.scale = Vector2(0.5, 0.5)
+	card.add_child(icon)
+
+	var item_type: String = item_data.get("type", "")
+	if item_type == "wheel_item":
+		var effects: Dictionary = item_data.get("effects", {})
+		var value: int = effects.get("value", 0)
+		var dmg_lbl := Label.new()
+		dmg_lbl.text = str(value)
+		dmg_lbl.add_theme_font_size_override("font_size", 11)
+		dmg_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		dmg_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		var iw := 64.0 * icon.scale.x
+		dmg_lbl.position = Vector2(CARD_SIZE.x / 2 - iw / 2, 98 - 64.0 * icon.scale.y)
+		dmg_lbl.size = Vector2(iw, 18)
+		card.add_child(dmg_lbl)
 
 	var desc_lbl := Label.new()
 	desc_lbl.text = item_data.get("description", "")
-	desc_lbl.add_theme_font_size_override("font_size", 12)
+	desc_lbl.add_theme_font_size_override("font_size", 11)
 	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc_lbl.position = Vector2(5, 140)
-	desc_lbl.size = Vector2(CARD_SIZE.x - 10, 70)
+	desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc_lbl.position = Vector2(4, 155)
+	desc_lbl.size = Vector2(CARD_SIZE.x - 8, 45)
 	card.add_child(desc_lbl)
 
 	var cost: int = item_data.get("cost", 0)
 	var buy_btn := Button.new()
 	buy_btn.text = "Buy (%d gold)" % cost
-	buy_btn.size = Vector2(CARD_SIZE.x - 20, 35)
-	buy_btn.position = Vector2(10, CARD_SIZE.y - 45)
+	buy_btn.size = Vector2(CARD_SIZE.x - 20, 28)
+	buy_btn.position = Vector2(10, CARD_SIZE.y - 34)
 	buy_btn.pressed.connect(_on_buy.bind(idx))
 	buy_btn.disabled = GameState.get_gold() < cost
 	card.add_child(buy_btn)
 
 	return card
+
+func _on_card_hover(card: TextureRect, entered: bool) -> void:
+	if not is_instance_valid(card):
+		return
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(card, "scale", Vector2(1.08, 1.08) if entered else Vector2.ONE, 0.12)
 
 func _on_buy(idx: int) -> void:
 	var item: Dictionary = _items[idx]
@@ -256,14 +287,14 @@ func _make_mini_card(card: ColorRect, item_data: Dictionary, label_text: String)
 	name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(name_lbl)
 
-	var rarity: String = item_data.get("rarity", "commun")
+	var rarity: String = item_data.get("rarity", "common")
 	var rarity_lbl := Label.new()
 	rarity_lbl.text = rarity
 	rarity_lbl.add_theme_font_size_override("font_size", 11)
 	rarity_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	rarity_lbl.position = Vector2(0, 102)
 	rarity_lbl.size = Vector2(card.size.x, 18)
-	var rarity_colors := {"commun": Color(0.8, 0.8, 0.8), "rare": Color(0.3, 0.6, 1.0), "épique": Color(0.7, 0.3, 0.9), "légendaire": Color(1.0, 0.7, 0.0)}
+	var rarity_colors := {"common": Color(0.8, 0.8, 0.8), "rare": Color(0.3, 0.6, 1.0), "epic": Color(0.7, 0.3, 0.9), "legendary": Color(1.0, 0.7, 0.0)}
 	rarity_lbl.add_theme_color_override("font_color", rarity_colors.get(rarity, Color.WHITE))
 	rarity_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(rarity_lbl)
@@ -437,7 +468,7 @@ func _apply_slot(slot_index: int) -> void:
 				"description": "%s - %d" % [prev_color, prev_val],
 				"type": "wheel_item",
 				"icon_path": "res://sprites/roue/slot_%s.png" % prev_color,
-				"rarity": "commun",
+				"rarity": "common",
 			}
 		_make_mini_card(_replaced_card, replaced_item, "Replaced")
 

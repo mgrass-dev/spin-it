@@ -120,7 +120,7 @@ func set_gold(amount: int) -> void:
 		"description": "La monnaie du royaume.",
 		"type": "other",
 		"icon_path": "",
-		"rarity": "commun",
+		"rarity": "common",
 		"effects": {"quantity": amount},
 	})
 
@@ -262,5 +262,5 @@ func reset_game() -> void:
 		"description": "La bille blanche, votre outil de combat principal.",
 		"type": "ball",
 		"icon_path": "res://sprites/balls/ball_white.png",
-		"rarity": "commun",
+		"rarity": "common",
 	})
