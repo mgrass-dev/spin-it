@@ -1,0 +1,70 @@
+[gd_scene format=3 uid="uid://cle08wqx885v"]
+
+[ext_resource type="Texture2D" uid="uid://ctbydyw2fq6tk" path="res://sprites/shop/button_skip_left.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://n7xefhndkl1h" path="res://sprites/shop/button_skip_mid.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://xwly5alu0r7s" path="res://sprites/shop/button_skip_right.png" id="3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hover"]
+bg_color = Color(1, 1, 1, 0.08)
+content_margin_left = 0
+content_margin_right = 0
+content_margin_top = 0
+content_margin_bottom = 0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pressed"]
+bg_color = Color(1, 1, 1, 0.15)
+content_margin_left = 0
+content_margin_right = 0
+content_margin_top = 0
+content_margin_bottom = 0
+
+[node name="Button" type="Button" unique_id=1612043165]
+custom_minimum_size = Vector2(180, 40)
+offset_right = 180.0
+offset_bottom = 40.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_1")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_1")
+text = ""
+
+[node name="LeftCap" type="TextureRect" parent="."]
+layout_mode = 1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_right = 96.0
+offset_bottom = 0.0
+mouse_filter = 2
+texture = ExtResource("1")
+expand_mode = 1
+
+[node name="RightCap" type="TextureRect" parent="."]
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -96.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+mouse_filter = 2
+texture = ExtResource("3")
+expand_mode = 1
+
+[node name="ButtonLabel" type="Label" parent="."]
+layout_mode = 1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://cvt7p5inj0fo" path="res://sprites/map/map_legend.png" id="3_legend"]
 [ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/menu/settings_menu.tscn" id="4_settings"]
 [ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/ui/hp_bar.tscn" id="5_hpbar"]
+[ext_resource type="PackedScene" uid="uid://cle08wqx885v" path="res://scenes/ui/button.tscn" id="6_button"]
 
 [node name="Map" type="Node2D" unique_id=585676313]
 script = ExtResource("1_script")
@@ -68,19 +69,16 @@ layout_mode = 2
 size_flags_horizontal = 1
 size_flags_vertical = 3
 
-[node name="StartButton" type="Button" parent="UILayer/InfoPanel/Margins/Layout" unique_id=116838596]
+[node name="StartButton" parent="UILayer/InfoPanel/Margins/Layout" unique_id=116838596 instance=ExtResource("6_button")]
 layout_mode = 2
 size_flags_horizontal = 4
 custom_minimum_size = Vector2(200, 44)
-theme_override_font_sizes/font_size = 20
-text = "Start"
 
-[node name="WheelPreviewBtn" type="Button" parent="UILayer"]
+[node name="WheelPreviewBtn" parent="UILayer" unique_id=116838597 instance=ExtResource("6_button")]
+layout_mode = 0
 offset_left = 20.0
 offset_top = 670.0
 offset_right = 120.0
 offset_bottom = 710.0
-theme_override_font_sizes/font_size = 16
-text = "Roue"
 
 [node name="SettingsMenu" parent="." unique_id=1086407467 instance=ExtResource("4_settings")]

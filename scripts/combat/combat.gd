@@ -337,7 +337,7 @@ func _apply_enemy_damage(amount: int) -> void:
 # ─── End / Reward screen ─────────────────────────────────────────────────────
 
 func _show_reward_screen() -> void:
-	var reward = load("res://scripts/combat/reward_screen.gd").new()
+	var reward = load("res://scripts/combat/reward_popup.gd").new()
 	add_child(reward)
 	reward.closed.connect(_show_end_screen)
 

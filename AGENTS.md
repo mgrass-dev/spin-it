@@ -21,6 +21,7 @@ Pour toute nouvelle fonctionnalité ou bug fix, suis le cycle **Red-Green-Refact
 
 ## Conventions
 
+- English only for all code, comments, commits, and communication (for consistency)
 - GDScript snake_case pour variables/fonctions, PascalCase pour classes
 - Les signaux sont préfixés par `signal `
 - Utilise `@onready` pour les références de nœuds

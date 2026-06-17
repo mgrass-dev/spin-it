@@ -70,8 +70,9 @@ func _ready() -> void:
 	info_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	info_panel.visible = false
 	start_button.pressed.connect(_on_start_pressed)
-	start_button.add_theme_color_override("font_color", Color.WHITE)
+	start_button.get_node("ButtonLabel").add_theme_color_override("font_color", Color.WHITE)
 	wheel_preview_btn.pressed.connect(_on_wheel_preview_pressed)
+	wheel_preview_btn.get_node("ButtonLabel").text = "Roue"
 	_load_level(GameState.current_level)
 
 func _fit_info_panel() -> void:
@@ -180,10 +181,10 @@ func _on_node_selected(mn: MapNode) -> void:
 	info_panel.visible = true
 	if mn.node_type == "merchant":
 		start_button.visible = true
-		start_button.text = "Visit"
+		start_button.get_node("ButtonLabel").text = "Visit"
 	else:
 		start_button.visible = mn.node_type != "start"
-		start_button.text = "Start"
+		start_button.get_node("ButtonLabel").text = "Start"
 
 	var icon_tex: Texture2D = load(_NODE_ICONS.get(mn.node_type, _NODE_ICONS["combat"]))
 
@@ -224,18 +225,17 @@ func _on_wheel_preview_pressed() -> void:
 	wheel.scale = Vector2(0.85, 0.85)
 	overlay.add_child(wheel)
 
-	var close_btn := Button.new()
-	close_btn.text = "Fermer"
+	var close_btn := preload("res://scenes/ui/button.tscn").instantiate()
+	close_btn.get_node("ButtonLabel").text = "Fermer"
 	close_btn.size = Vector2(160, 40)
 	close_btn.position = Vector2(640 - 80, 650)
-	close_btn.add_theme_font_size_override("font_size", 20)
 	close_btn.pressed.connect(func():
 		overlay.queue_free()
 	)
 	overlay.add_child(close_btn)
 
 func _open_merchant() -> void:
-	var reward = load("res://scripts/combat/reward_screen.gd").new()
+	var reward = load("res://scripts/combat/reward_popup.gd").new()
 	reward.is_merchant_mode = true
 	add_child(reward)
 	reward.closed.connect(_on_merchant_closed)

@@ -42,7 +42,7 @@ func _randomize_items() -> void:
 
 func _build_ui() -> void:
 	var overlay := ColorRect.new()
-	overlay.color = Color(0, 0, 0, 0.75)
+	overlay.color = Color(0, 0, 0, 0.85)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(overlay)
 
@@ -64,7 +64,7 @@ func _build_ui() -> void:
 	add_child(gold_label)
 
 	var start_x := (1280 - (_items.size() * CARD_SIZE.x + (_items.size() - 1) * CARD_SPACING)) / 2
-	var card_y := 130
+	var card_y := get_viewport().get_visible_rect().size.y / 3
 
 	for idx in _items.size():
 		var item_data := _items[idx]
@@ -110,13 +110,13 @@ func _make_card(item_data: Dictionary, idx: int) -> Control:
 	name_lbl.text = item_data.get("name", "")
 	name_lbl.add_theme_font_size_override("font_size", 13)
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.position = Vector2(0, 6)
+	name_lbl.position = Vector2(0, 15)
 	name_lbl.size = Vector2(CARD_SIZE.x, 20)
 	card.add_child(name_lbl)
 
 	var icon := Sprite2D.new()
 	icon.texture = load(item_data.get("icon_path", ""))
-	icon.position = Vector2(CARD_SIZE.x / 2, 98)
+	icon.position = Vector2(CARD_SIZE.x / 2, 100)
 	icon.scale = Vector2(0.5, 0.5)
 	card.add_child(icon)
 
@@ -136,18 +136,18 @@ func _make_card(item_data: Dictionary, idx: int) -> Control:
 
 	var desc_lbl := Label.new()
 	desc_lbl.text = item_data.get("description", "")
-	desc_lbl.add_theme_font_size_override("font_size", 11)
+	desc_lbl.add_theme_font_size_override("font_size", 10)
 	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	desc_lbl.position = Vector2(4, 155)
+	desc_lbl.position = Vector2(4, 145)
 	desc_lbl.size = Vector2(CARD_SIZE.x - 8, 45)
 	card.add_child(desc_lbl)
 
 	var cost: int = item_data.get("cost", 0)
 	var buy_btn := Button.new()
 	buy_btn.text = "Buy (%d gold)" % cost
-	buy_btn.size = Vector2(CARD_SIZE.x - 20, 28)
-	buy_btn.position = Vector2(10, CARD_SIZE.y - 34)
+	buy_btn.size = Vector2(CARD_SIZE.x - 20, 27)
+	buy_btn.position = Vector2(10, CARD_SIZE.y - 37)
 	buy_btn.pressed.connect(_on_buy.bind(idx))
 	buy_btn.disabled = GameState.get_gold() < cost
 	card.add_child(buy_btn)

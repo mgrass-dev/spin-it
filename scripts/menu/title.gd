@@ -6,6 +6,7 @@ extends Node2D
 @onready var _settings_button: Button = $CanvasLayer/ButtonVBox/SettingsButton
 
 func _ready() -> void:
+	$CanvasLayer/TitleLabel.add_theme_color_override("font_color", Color(0.92, 0.78, 0.25, 1))
 	_continue_button.visible = GameState.has_save()
 	_continue_button.pressed.connect(_on_continue)
 	_new_game_button.pressed.connect(_on_new_game)
