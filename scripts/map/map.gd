@@ -49,14 +49,15 @@ static func _fallback_params(level_id: int) -> Dictionary:
 		_:
 			return _fallback_params(1)
 
-@onready var paths_layer: Node2D = $PathsLayer
-@onready var nodes_layer: Node2D = $NodesLayer
+@onready var paths_layer: Node2D = $MapContainer/PathsLayer
+@onready var nodes_layer: Node2D = $MapContainer/NodesLayer
 @onready var legend_panel: Sprite2D = $LegendPanel
 @onready var boss_hp_bar: HPBar = $UILayer/BossHPBar
 @onready var info_panel: Control = $UILayer/InfoPanel
 @onready var mob_hp_bar: HPBar = $UILayer/InfoPanel/Margins/Layout/MobHPBar
 @onready var start_button: Button = $UILayer/InfoPanel/Margins/Layout/StartButton
 @onready var wheel_preview_btn: Button = $UILayer/WheelPreviewBtn
+@onready var map_container: Node2D = $MapContainer
 
 # Pixel bounds of the brown panel inside the 1920×1080 map_legend.png sprite
 const _BROWN_RECT := Rect2(1575, 363, 265, 416)
@@ -65,10 +66,15 @@ var level_data: Dictionary = {}
 var map_nodes: Dictionary = {}
 var selected_node: MapNode = null
 
+const PANEL_SHIFT_X := -144.0
+var _map_tween: Tween
+var _map_center: Vector2 = Vector2.ZERO
+
 func _ready() -> void:
 	_fit_info_panel()
 	info_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	info_panel.visible = false
+	legend_panel.visible = false
 	start_button.pressed.connect(_on_start_pressed)
 	start_button.get_node("ButtonLabel").add_theme_color_override("font_color", Color.WHITE)
 	wheel_preview_btn.pressed.connect(_on_wheel_preview_pressed)
@@ -108,6 +114,7 @@ func _build_map() -> void:
 		)
 	_draw_paths()
 	_create_nodes()
+	_center_map()
 	_apply_state()
 
 func _draw_paths() -> void:
@@ -174,11 +181,20 @@ func _find_node_data(id: String) -> Dictionary:
 	return {}
 
 func _on_node_selected(mn: MapNode) -> void:
+	if selected_node == mn:
+		selected_node.set_selected(false)
+		selected_node = null
+		info_panel.visible = false
+		legend_panel.visible = false
+		_shift_map(false)
+		return
 	if selected_node != null:
 		selected_node.set_selected(false)
 	selected_node = mn
 	selected_node.set_selected(true)
 	info_panel.visible = true
+	legend_panel.visible = true
+	_shift_map(true)
 	if mn.node_type == "merchant":
 		start_button.visible = true
 		start_button.get_node("ButtonLabel").text = "Visit"
@@ -247,4 +263,29 @@ func _on_merchant_closed() -> void:
 		selected_node.set_selected(false)
 		selected_node = null
 		info_panel.visible = false
+		legend_panel.visible = false
+		_shift_map(false)
 	_apply_state()
+
+func _shift_map(show: bool) -> void:
+	if _map_tween and _map_tween.is_valid():
+		_map_tween.kill()
+	_map_tween = create_tween()
+	var target_x := _map_center.x + (PANEL_SHIFT_X if show else 0.0)
+	_map_tween.tween_property(map_container, "position:x", target_x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+func _center_map() -> void:
+	if map_nodes.is_empty():
+		return
+	var min_x := INF
+	var max_x := -INF
+	var min_y := INF
+	var max_y := -INF
+	for mn in map_nodes.values():
+		min_x = min(min_x, mn.position.x)
+		max_x = max(max_x, mn.position.x)
+		min_y = min(min_y, mn.position.y)
+		max_y = max(max_y, mn.position.y)
+	var center := Vector2((min_x + max_x) / 2.0, (min_y + max_y) / 2.0)
+	_map_center = Vector2(640, 360) - center
+	map_container.position = _map_center
