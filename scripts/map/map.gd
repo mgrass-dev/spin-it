@@ -1,6 +1,7 @@
 extends Node2D
 
 const MAP_NODE_SCENE := preload("res://scenes/map/map_node.tscn")
+const MODIFIER_SLOT := preload("res://scripts/ui/modifier_slot.gd")
 
 const PATH_COLOR := Color(0.78, 0.55, 0.18)
 const PATH_WIDTH := 14.0
@@ -58,6 +59,9 @@ static func _fallback_params(level_id: int) -> Dictionary:
 @onready var start_button: Button = $UILayer/InfoPanel/Margins/Layout/StartButton
 @onready var wheel_preview_btn: Button = $UILayer/WheelPreviewBtn
 @onready var map_container: Node2D = $MapContainer
+@onready var modifiers_container: VBoxContainer = $UILayer/InfoPanel/Margins/Layout/Modifiers
+
+const _MAX_MODIFIER_SLOTS := 3
 
 # Pixel bounds of the brown panel inside the 1920×1080 map_legend.png sprite
 const _BROWN_RECT := Rect2(1575, 363, 265, 416)
@@ -79,7 +83,18 @@ func _ready() -> void:
 	start_button.get_node("ButtonLabel").add_theme_color_override("font_color", Color.WHITE)
 	wheel_preview_btn.pressed.connect(_on_wheel_preview_pressed)
 	wheel_preview_btn.get_node("ButtonLabel").text = "Roue"
+	_populate_modifier_slots()
 	_load_level(GameState.current_level)
+
+func _populate_modifier_slots() -> void:
+	for i in _MAX_MODIFIER_SLOTS:
+		modifiers_container.add_child(MODIFIER_SLOT.new())
+
+func _update_modifier_slots() -> void:
+	var mods = GameState.get_modifier_items()
+	var slots = modifiers_container.get_children()
+	for i in _MAX_MODIFIER_SLOTS:
+		slots[i].setup(mods[i] if i < mods.size() else {})
 
 func _fit_info_panel() -> void:
 	var xform := legend_panel.get_global_transform()
@@ -216,6 +231,8 @@ func _on_node_selected(mn: MapNode) -> void:
 			mob_hp_bar.setup(icon_tex, "Merchant", 0, 0)
 		_:
 			mob_hp_bar.setup(null, "", 0, 0)
+
+	_update_modifier_slots()
 
 func _on_start_pressed() -> void:
 	if selected_node == null:
