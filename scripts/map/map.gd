@@ -253,10 +253,10 @@ func _on_wheel_preview_pressed() -> void:
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(bg)
 
-	var wheel := preload("res://scenes/combat/wheel.tscn").instantiate()
+	var wheel := preload("res://scenes/roulette/roulette_wheel.tscn").instantiate()
 	wheel.position = Vector2(640, 340)
-	wheel.scale = Vector2(0.85, 0.85)
 	overlay.add_child(wheel)
+	wheel.load_player_slots()
 
 	var close_btn := preload("res://scenes/ui/button.tscn").instantiate()
 	close_btn.get_node("ButtonLabel").text = "Fermer"

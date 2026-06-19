@@ -1,12 +1,10 @@
 [gd_scene format=3 uid="uid://bjmfvq2gql273"]
 
 [ext_resource type="Script" uid="uid://bmwen85ucpgn2" path="res://scripts/combat/combat.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://b1oi25satqc2b" path="res://scenes/combat/wheel.tscn" id="1_wheel"]
-[ext_resource type="PackedScene" uid="uid://d8rin1idfaff" path="res://scenes/combat/ball.tscn" id="2_ball"]
+[ext_resource type="PackedScene" uid="uid://b1oi25satqc2b" path="res://scenes/roulette/roulette_wheel.tscn" id="2_wheel"]
 [ext_resource type="Texture2D" uid="uid://dkebnr0474l07" path="res://sprites/background/enemy_bg.png" id="3_enemy_bg"]
 [ext_resource type="Texture2D" uid="uid://dufvspmj8ri5g" path="res://sprites/background/player_bg.png" id="4_player_bg"]
 [ext_resource type="Texture2D" uid="uid://dgu3bykqg77sd" path="res://sprites/background/separator.png" id="5_separator"]
-[ext_resource type="Texture2D" uid="uid://crvcgeqwk3yuy" path="res://sprites/hud/hud_ball.png" id="9_hud_ball"]
 [ext_resource type="PackedScene" uid="uid://bpbktemfxbgni" path="res://scenes/combat/damage_display.tscn" id="11_damage"]
 [ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/menu/settings_menu.tscn" id="11_ya4ey"]
 [ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/ui/hp_bar.tscn" id="12_hpbar"]
@@ -17,37 +15,29 @@ script = ExtResource("1_script")
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2019002469]
 anchor_mode = 0
 
-[node name="EnemyBackground" type="Sprite2D" parent="." unique_id=200000001]
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="EnemyBackground" type="Sprite2D" parent="BackgroundLayer" unique_id=200000001]
 position = Vector2(639.99994, 210)
 scale = Vector2(1.3333333, 1.4)
 texture = ExtResource("3_enemy_bg")
 
-[node name="PlayerBackground" type="Sprite2D" parent="." unique_id=200000002]
+[node name="PlayerBackground" type="Sprite2D" parent="BackgroundLayer" unique_id=200000002]
 position = Vector2(639.99994, 515)
 scale = Vector2(1.3333333, 1.4)
 texture = ExtResource("4_player_bg")
 
-[node name="Separator" type="Sprite2D" parent="." unique_id=200000003]
+[node name="Separator" type="Sprite2D" parent="BackgroundLayer" unique_id=200000003]
 position = Vector2(647.9999, 313.5)
 scale = Vector2(1.3499997, 1.3499997)
 texture = ExtResource("5_separator")
 
-[node name="EnemyWheel" parent="." unique_id=200000005 instance=ExtResource("1_wheel")]
-position = Vector2(663, 155)
-scale = Vector2(0.5, 0.5)
+[node name="EnemyWheel" parent="." instance=ExtResource("2_wheel")]
+position = Vector2(640, 160)
 
-[node name="PlayerWheel" parent="." unique_id=1552624772 instance=ExtResource("1_wheel")]
-position = Vector2(666, 511)
-scale = Vector2(0.75, 0.75)
-
-[node name="HudBall" type="Sprite2D" parent="." unique_id=200000008]
-position = Vector2(1086, 658)
-scale = Vector2(1.1999999, 1.2)
-texture = ExtResource("9_hud_ball")
-
-[node name="Ball" parent="." unique_id=200000010 instance=ExtResource("2_ball")]
-z_index = 2
-position = Vector2(956, 652)
+[node name="PlayerWheel" parent="." instance=ExtResource("2_wheel")]
+position = Vector2(640, 480)
 
 [node name="DamageDisplay" parent="." unique_id=200000011 instance=ExtResource("11_damage")]
 
@@ -65,5 +55,13 @@ offset_left = 955.0
 offset_top = 328.0
 offset_right = 1265.0
 offset_bottom = 380.0
+
+[node name="PlayerLaunchButton" type="Button" parent="UILayer"]
+offset_left = 540.0
+offset_top = 655.0
+offset_right = 740.0
+offset_bottom = 695.0
+theme_override_font_sizes/font_size = 20
+text = "Launch Ball"
 
 [node name="SettingsMenu" parent="." unique_id=623952953 instance=ExtResource("11_ya4ey")]
