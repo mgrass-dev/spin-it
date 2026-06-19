@@ -3,30 +3,23 @@ extends CanvasLayer
 const CARD_SIZE := Vector2(160, 240)
 const CARD_SPACING := 24
 
-const SLOT_BLACK = preload("res://sprites/roue/slot_black.png")
-const SLOT_RED = preload("res://sprites/roue/slot_red.png")
-const WHEEL_BG = preload("res://sprites/roue/wheel_bg.png")
-const WHEEL_CENTER = preload("res://sprites/roue/wheel_center.png")
-
 const CARD_BG_COMMON = preload("res://sprites/shop/card_common_background.png")
 const CARD_BG_RARE = preload("res://sprites/shop/card_rare_background.png")
 const CARD_BG_EPIC = preload("res://sprites/shop/card_epic_background.png")
 const CARD_BG_LEGENDARY = preload("res://sprites/shop/card_legendary_background.png")
 
-const MINI_WHEEL_RADIUS := 145.0
-const MINI_WHEEL_SCALE := 0.55
+const ROULETTE_WHEEL_SCENE = preload("res://scenes/roulette/roulette_wheel.tscn")
 
 var is_merchant_mode := false
 var _items: Array[Dictionary] = []
+var _reward_controls: Array[CanvasItem] = []
+var _gold_label: Label
 var _selected_purchase: Dictionary = {}
 var _mini_wheel_active := false
+var _selection_wheel: RouletteWheel
 var _mini_wheel_container: Node2D
 var _mini_wheel_close_btn: Button
 var _replaced_card: ColorRect
-var _slot_selected := false
-var _mini_default_values: Array = []
-var _mini_slot_nodes: Array[Node2D] = []
-var _hovered_slot: int = -1
 
 signal closed()
 
@@ -44,6 +37,7 @@ func _build_ui() -> void:
 	var overlay := ColorRect.new()
 	overlay.color = Color(0, 0, 0, 0.85)
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(overlay)
 
 	var gold := GameState.get_gold()
@@ -54,14 +48,16 @@ func _build_ui() -> void:
 	title.position = Vector2(640 - 150, 20)
 	title.size = Vector2(300, 50)
 	add_child(title)
+	_reward_controls.append(title)
 
-	var gold_label := Label.new()
-	gold_label.text = "Gold: %d" % gold
-	gold_label.add_theme_font_size_override("font_size", 22)
-	gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	gold_label.position = Vector2(640 - 100, 70)
-	gold_label.size = Vector2(200, 30)
-	add_child(gold_label)
+	_gold_label = Label.new()
+	_gold_label.text = "Gold: %d" % gold
+	_gold_label.add_theme_font_size_override("font_size", 22)
+	_gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_gold_label.position = Vector2(640 - 100, 70)
+	_gold_label.size = Vector2(200, 30)
+	add_child(_gold_label)
+	_reward_controls.append(_gold_label)
 
 	var start_x := (1280 - (_items.size() * CARD_SIZE.x + (_items.size() - 1) * CARD_SPACING)) / 2
 	var card_y := get_viewport().get_visible_rect().size.y / 3
@@ -71,6 +67,7 @@ func _build_ui() -> void:
 		var card := _make_card(item_data, idx)
 		card.position = Vector2(start_x + idx * (CARD_SIZE.x + CARD_SPACING), card_y)
 		add_child(card)
+		_reward_controls.append(card)
 
 	var reroll_btn := Button.new()
 	reroll_btn.text = "Reroll (1 gold)"
@@ -79,6 +76,7 @@ func _build_ui() -> void:
 	reroll_btn.pressed.connect(_on_reroll)
 	reroll_btn.disabled = gold < 1
 	add_child(reroll_btn)
+	_reward_controls.append(reroll_btn)
 
 	var pass_btn := Button.new()
 	pass_btn.text = "Skip"
@@ -86,6 +84,7 @@ func _build_ui() -> void:
 	pass_btn.position = Vector2(640 - 90 + 100, 530)
 	pass_btn.pressed.connect(_on_pass)
 	add_child(pass_btn)
+	_reward_controls.append(pass_btn)
 
 func _make_card(item_data: Dictionary, idx: int) -> Control:
 	var rarity: String = item_data.get("rarity", "common")
@@ -163,36 +162,57 @@ func _on_card_hover(card: TextureRect, entered: bool) -> void:
 	tween.tween_property(card, "scale", Vector2(1.08, 1.08) if entered else Vector2.ONE, 0.12)
 
 func _on_buy(idx: int) -> void:
+	print("[reward] === BUY CLICKED === idx=", idx)
 	var item: Dictionary = _items[idx]
 	var cost: int = item.get("cost", 0)
-	if not GameState.spend_gold(cost):
+	var gold: int = GameState.get_gold()
+	print("[reward] item=", item.get("name", "?"), " cost=", cost, " gold=", gold)
+	if gold < cost:
+		print("[reward] *** GOLD CHECK FAILED: gold < cost ***")
 		return
+	print("[reward] gold check PASSED")
 
 	var item_type: String = item.get("type", "")
+	print("[reward] type=", item_type)
 	match item_type:
 		"modifier":
+			print("[reward] --- modifier branch ---")
+			GameState.spend_gold(cost)
 			GameState.add_item(item)
 			GameState.save_game()
 			_on_pass()
 		"wheel_item":
+			print("[reward] === WHEEL ITEM BRANCH ===")
 			_selected_purchase = item
-			GameState.add_item(item)
+			print("[reward] _selected_purchase stored: ", _selected_purchase.get("name", "?"))
+			print("[reward] calling _show_mini_wheel()")
 			_show_mini_wheel()
+			print("[reward] returned from _show_mini_wheel()")
 		_:
+			print("[reward] --- default branch ---")
+			GameState.spend_gold(cost)
 			GameState.add_item(item)
 			GameState.save_game()
 			_on_pass()
 
 func _show_mini_wheel() -> void:
+	print("[reward] === _show_mini_wheel ENTERED ===")
 	_mini_wheel_active = true
-	_slot_selected = false
+	print("[reward] hiding reward controls (count=", _reward_controls.size(), ")")
+	for c in _reward_controls:
+		if is_instance_valid(c):
+			c.hide()
+		else:
+			print("[reward]   invalid control in _reward_controls")
 
-	var overlay := ColorRect.new()
-	overlay.color = Color(0, 0, 0, 0.85)
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(overlay)
+	print("[reward] creating _mini_wheel_container")
+	_mini_wheel_container = Node2D.new()
+	_mini_wheel_container.name = "MiniWheelContainer"
+	add_child(_mini_wheel_container)
+	print("[reward] container child of popup: ", _mini_wheel_container.get_parent() == self)
+	print("[reward] container in scene tree: ", _mini_wheel_container.is_inside_tree())
 
+	print("[reward] adding title label to container")
 	var title := Label.new()
 	title.text = "Choose a slot to replace"
 	title.add_theme_font_size_override("font_size", 24)
@@ -200,51 +220,66 @@ func _show_mini_wheel() -> void:
 	title.position = Vector2(640 - 200, 20)
 	title.size = Vector2(400, 40)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(title)
+	_mini_wheel_container.add_child(title)
 
-	var gold_lbl := Label.new()
-	gold_lbl.text = "Gold: %d" % GameState.get_gold()
-	gold_lbl.add_theme_font_size_override("font_size", 18)
-	gold_lbl.position = Vector2(640 + 180, 20)
-	gold_lbl.size = Vector2(120, 30)
-	gold_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(gold_lbl)
-
-	_mini_wheel_container = Node2D.new()
-	add_child(_mini_wheel_container)
-
-	_mini_default_values = Array(range(1, 21))
-	_mini_default_values.shuffle()
-
-	_build_mini_wheel_visual()
+	print("[reward] instantiating RouletteWheel from scene")
+	_selection_wheel = ROULETTE_WHEEL_SCENE.instantiate()
+	print("[reward] wheel instantiated: ", _selection_wheel)
+	print("[reward] setting selection_mode to true")
+	_selection_wheel.selection_mode = true
+	print("[reward] setting wheel_scale=", 0.55)
+	_selection_wheel.wheel_scale = 0.55
+	print("[reward] setting position=", Vector2(640, 370))
+	_selection_wheel.position = Vector2(640, 370)
+	print("[reward] adding wheel to container")
+	_mini_wheel_container.add_child(_selection_wheel)
+	print("[reward] wheel is_inside_tree: ", _selection_wheel.is_inside_tree())
+	print("[reward] wheel visible: ", _selection_wheel.visible)
+	print("[reward] wheel position: ", _selection_wheel.position)
+	print("[reward] wheel scale: ", _selection_wheel.scale)
+	print("[reward] wheel selection_mode: ", _selection_wheel.selection_mode)
+	print("[reward] connecting slot_selected signal")
+	_selection_wheel.slot_selected.connect(_on_selection_slot_selected)
+	
+	# Lift number labels above the popup layer
+	var numbers_cl := _selection_wheel.get_node_or_null("CanvasLayer") as CanvasLayer
+	if numbers_cl:
+		numbers_cl.layer = 21
+		print("[reward] numbers container layer set to 21")
+	else:
+		print("[reward] WARNING: numbers CanvasLayer not found")
 
 	var side_card_size := Vector2(180, 210)
-	var side_card_y := 250
+	var side_card_y := 240
 
+	print("[reward] creating left card (Purchase)")
 	var left_card := ColorRect.new()
 	left_card.size = side_card_size
 	left_card.color = Color(0.12, 0.12, 0.18, 0.95)
 	left_card.position = Vector2(60, side_card_y)
 	left_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(left_card)
+	_mini_wheel_container.add_child(left_card)
 	_make_mini_card(left_card, _selected_purchase, "Purchase")
 
-	var right_card := ColorRect.new()
-	right_card.size = side_card_size
-	right_card.color = Color(0.12, 0.12, 0.18, 0.95)
-	right_card.position = Vector2(1280 - 60 - side_card_size.x, side_card_y)
-	right_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	right_card.hide()
-	add_child(right_card)
-	_replaced_card = right_card
+	print("[reward] creating right card (Replaced)")
+	_replaced_card = ColorRect.new()
+	_replaced_card.size = side_card_size
+	_replaced_card.color = Color(0.12, 0.12, 0.18, 0.95)
+	_replaced_card.position = Vector2(1280 - 60 - side_card_size.x, side_card_y)
+	_replaced_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_replaced_card.hide()
+	_mini_wheel_container.add_child(_replaced_card)
 
+	print("[reward] creating Close button")
 	_mini_wheel_close_btn = Button.new()
 	_mini_wheel_close_btn.text = "Close"
 	_mini_wheel_close_btn.size = Vector2(160, 40)
 	_mini_wheel_close_btn.position = Vector2(640 - 80, 640)
 	_mini_wheel_close_btn.pressed.connect(_on_mini_wheel_close)
 	_mini_wheel_close_btn.hide()
-	add_child(_mini_wheel_close_btn)
+	_mini_wheel_container.add_child(_mini_wheel_close_btn)
+
+	print("[reward] === _show_mini_wheel COMPLETE ===")
 
 func _make_mini_card(card: ColorRect, item_data: Dictionary, label_text: String) -> void:
 	for child in card.get_children():
@@ -308,143 +343,31 @@ func _make_mini_card(card: ColorRect, item_data: Dictionary, label_text: String)
 	desc_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(desc_lbl)
 
-func _build_mini_wheel_visual() -> void:
-	for child in _mini_wheel_container.get_children():
-		child.queue_free()
-	_mini_slot_nodes.clear()
-	_hovered_slot = -1
-
-	var center := Vector2(640, 400)
-	var rad := MINI_WHEEL_RADIUS * MINI_WHEEL_SCALE
-	var s := MINI_WHEEL_SCALE
-
-	var bg := Sprite2D.new()
-	bg.texture = WHEEL_BG
-	bg.position = center
-	bg.scale = Vector2(s, s)
-	bg.z_index = 1
-	_mini_wheel_container.add_child(bg)
-
-	var angle_step: float = TAU / 20
-
-	var equipped_by_pos: Dictionary = {}
-	for eq in GameState.equipped_wheel_slots:
-		var p: int = eq.get("position", -1)
-		if p >= 0 and p < 20:
-			equipped_by_pos[p] = eq
-
-	for i in 20:
-		var angle := i * angle_step
-		var pos := center + Vector2(cos(angle), sin(angle)) * rad
-
-		var is_black: bool
-		var val: int
-		if i in equipped_by_pos:
-			var eq: Dictionary = equipped_by_pos[i]
-			is_black = eq.get("slot_color", "black") == "black"
-			val = eq.get("value", 1)
-		else:
-			is_black = i % 2 == 0
-			val = _mini_default_values[i]
-
-		var tex := SLOT_BLACK if is_black else SLOT_RED
-
-		var slot := Node2D.new()
-		slot.position = pos
-		slot.rotation = angle + PI / 2
-		slot.z_index = 5
-		_mini_wheel_container.add_child(slot)
-		_mini_slot_nodes.append(slot)
-
-		var sp := Sprite2D.new()
-		sp.texture = tex
-		sp.scale = Vector2(s, s)
-		slot.add_child(sp)
-
-		var lbl := Label.new()
-		lbl.text = str(val)
-		lbl.add_theme_font_size_override("font_size", max(1, int(22 * s)))
-		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl.position = Vector2(-32.0, -60.0) * s
-		lbl.size = Vector2(64.0, 40.0) * s
-		lbl.z_index = 6
-		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		slot.add_child(lbl)
-
-	var inner := Sprite2D.new()
-	inner.texture = WHEEL_CENTER
-	inner.position = center
-	inner.scale = Vector2(s, s)
-	inner.z_index = 8
-	_mini_wheel_container.add_child(inner)
-
-func _update_hover(mpos: Vector2, center: Vector2, rad: float) -> void:
-	var tolerance: float = rad * 0.35
-	var dist := mpos.distance_to(center)
-	var idx: int = -1
-	if abs(dist - rad) <= tolerance:
-		var angle := (mpos - center).angle()
-		while angle < 0:
-			angle += TAU
-		var angle_step: float = TAU / 20
-		idx = int(angle / angle_step + 0.5) % 20
-
-	if idx == _hovered_slot:
-		return
-
-	if _hovered_slot >= 0 and _hovered_slot < _mini_slot_nodes.size():
-		_mini_slot_nodes[_hovered_slot].scale = Vector2.ONE
-
-	_hovered_slot = idx
-
-	if idx >= 0 and idx < _mini_slot_nodes.size():
-		_mini_slot_nodes[idx].scale = Vector2(1.15, 1.15)
-
-func _input(event: InputEvent) -> void:
-	if not _mini_wheel_active:
-		return
-
-	var center := Vector2(640, 400)
-	var rad := MINI_WHEEL_RADIUS * MINI_WHEEL_SCALE
-
-	if event is InputEventMouseMotion and not _slot_selected:
-		var mpos := (event as InputEventMouseMotion).position
-		_update_hover(mpos, center, rad)
-		return
-
-	if _slot_selected:
-		return
-	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
-		return
-
-	var click_pos := (event as InputEventMouseButton).position
-	var dist := click_pos.distance_to(center)
-	var tolerance: float = rad * 0.35
-
-	if abs(dist - rad) > tolerance:
-		return
-
-	var angle := (click_pos - center).angle()
-	while angle < 0:
-		angle += TAU
-	var angle_step: float = TAU / 20
-	var idx := int(angle / angle_step + 0.5) % 20
-	_apply_slot(idx)
-	get_viewport().set_input_as_handled()
+func _on_selection_slot_selected(slot_index: int) -> void:
+	print("[reward] _on_selection_slot_selected slot=", slot_index,
+		" purchase=", _selected_purchase.get("name", "?"))
+	_apply_slot(slot_index)
 
 func _apply_slot(slot_index: int) -> void:
+	var cost: int = _selected_purchase.get("cost", 0)
+	if not GameState.spend_gold(cost):
+		print("[reward] not enough gold to apply slot")
+		return
+	GameState.add_item(_selected_purchase.duplicate())
+	GameState.save_game()
+
 	var effects: Dictionary = _selected_purchase.get("effects", {})
 	var value: int = effects.get("value", 1)
 	var slot_color: String = effects.get("slot_color", "black")
 	var item_id: String = _selected_purchase.get("id", "")
+	print("[reward] _apply_slot idx=", slot_index,
+		" value=", value, " color=", slot_color, " item=", item_id)
 
 	var replaced: Dictionary = GameState.get_slot_at_position(slot_index)
 	GameState.replace_slot(slot_index, value, slot_color, item_id)
 
-	_slot_selected = true
 	GameState.save_game()
-	_build_mini_wheel_visual()
+	_selection_wheel.load_player_slots()
 	_mini_wheel_close_btn.show()
 
 	if _replaced_card:
@@ -458,7 +381,7 @@ func _apply_slot(slot_index: int) -> void:
 		if replaced_item.is_empty():
 			var was_black := slot_index % 2 == 0
 			var prev_color := "black" if was_black else "red"
-			var prev_val: int = _mini_default_values[slot_index] if slot_index < _mini_default_values.size() else 0
+			var prev_val := slot_index + 1
 			if not replaced.is_empty():
 				prev_color = replaced.get("slot_color", prev_color)
 				prev_val = replaced.get("value", prev_val)
@@ -474,11 +397,25 @@ func _apply_slot(slot_index: int) -> void:
 
 func _on_mini_wheel_close() -> void:
 	_mini_wheel_active = false
+	_return_to_shop()
+
+func _return_to_shop() -> void:
+	if is_instance_valid(_mini_wheel_container):
+		_mini_wheel_container.queue_free()
+		_mini_wheel_container = null
+	_selection_wheel = null
+	_mini_wheel_close_btn = null
+	_replaced_card = null
+
+	if _gold_label:
+		_gold_label.text = "Gold: %d" % GameState.get_gold()
+
+	for c in _reward_controls:
+		if is_instance_valid(c):
+			c.show()
+
 	if is_merchant_mode:
 		closed.emit()
-		queue_free()
-	else:
-		get_tree().change_scene_to_file("res://scenes/map/map.tscn")
 		queue_free()
 
 func _on_reroll() -> void:
@@ -494,8 +431,10 @@ func _rebuild() -> void:
 	for child in get_children():
 		child.queue_free()
 	_items.clear()
+	_reward_controls.clear()
+	_gold_label = null
 	_mini_wheel_active = false
-	_slot_selected = false
+	_selection_wheel = null
 	_mini_wheel_container = null
 	_mini_wheel_close_btn = null
 	_replaced_card = null

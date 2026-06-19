@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/roulette/roulette.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/roulette/roulette_wheel.tscn" id="2"]
+
+[node name="Roulette" type="Node2D"]
+script = ExtResource("1")
+
+[node name="WheelTop" parent="." instance=ExtResource("2")]
+position = Vector2(640, 130)
+
+[node name="WheelBottom" parent="." instance=ExtResource("2")]
+position = Vector2(640, 472)
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Background" type="ColorRect" parent="BackgroundLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.06, 0.04, 0.10, 1)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="BackButton" type="Button" parent="UILayer"]
+offset_left = 20.0
+offset_top = 8.0
+offset_right = 120.0
+offset_bottom = 40.0
+text = "Back"
+
+[node name="ResultLabelTop" type="Label" parent="UILayer"]
+offset_left = 390.0
+offset_top = 280.0
+offset_right = 890.0
+offset_bottom = 310.0
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Launch the ball!"
+
+[node name="LaunchTopButton" type="Button" parent="UILayer"]
+offset_left = 490.0
+offset_top = 315.0
+offset_right = 790.0
+offset_bottom = 355.0
+theme_override_font_sizes/font_size = 20
+text = "Launch Ball"
+
+[node name="ResultLabelBottom" type="Label" parent="UILayer"]
+offset_left = 390.0
+offset_top = 590.0
+offset_right = 890.0
+offset_bottom = 620.0
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Launch the ball!"
+
+[node name="LaunchBottomButton" type="Button" parent="UILayer"]
+offset_left = 490.0
+offset_top = 625.0
+offset_right = 790.0
+offset_bottom = 665.0
+theme_override_font_sizes/font_size = 20
+text = "Launch Ball"

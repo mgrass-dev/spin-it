@@ -6,8 +6,6 @@ const VIEWPORT_SIZE := Vector2(1280, 720)
 const OVERLAY_ALPHA := 0xA0 / 255.0
 const OVERLAY_SPLIT_Y := 315
 
-const WHEEL_VISUAL_RADIUS := 250.0
-const BALL_APPROACH_DURATION := 0.5
 const ENEMY_SPIN_DELAY := 2.0
 const THROWS_PER_TURN := 3
 
@@ -16,21 +14,14 @@ const PLAYER_LOG_SIZE := Vector2(250, 200)
 const ENEMY_LOG_POS := Vector2(1022, 8)
 const ENEMY_LOG_SIZE := Vector2(250, 300)
 
-@onready var player_wheel: Node2D = $PlayerWheel
-@onready var enemy_wheel: Node2D = $EnemyWheel
-@onready var ball: Node2D = $Ball
+@onready var player_wheel: RouletteWheel = $PlayerWheel
+@onready var enemy_wheel: RouletteWheel = $EnemyWheel
 @onready var damage_display: CanvasLayer = $DamageDisplay
 @onready var _ui_layer: CanvasLayer = $UILayer
 @onready var _enemy_hp_bar: HPBar = $UILayer/EnemyHPBar
 @onready var _player_hp_bar: HPBar = $UILayer/PlayerHPBar
+@onready var _player_launch_btn: Button = $UILayer/PlayerLaunchButton
 
-const BALL_Y_OFFSET := 15.0
-
-var _ball_over_wheel := false
-var _ball_rolling := false
-var _ball_offset_angle := 0.0
-var _ball_approach_start := Vector2.ZERO
-var _ball_approach_time := 0.0
 var _combat_over := false
 var _current_turn: Turn = Turn.PLAYER
 var _turn_number: int = 1
@@ -46,7 +37,6 @@ var _enemy_section_overlay: ColorRect
 var _player_section_overlay: ColorRect
 var _player_log: CombatLogPanel
 var _enemy_log: CombatLogPanel
-var _enemy_ball: Sprite2D
 var _throws_label: Label
 
 func _ready() -> void:
@@ -55,18 +45,16 @@ func _ready() -> void:
 		DisplayServer.window_set_size(screen_size)
 		DisplayServer.window_set_position(Vector2i.ZERO)
 
-	ball.released.connect(_on_ball_released)
-	player_wheel.spin_completed.connect(_on_spin_completed)
-	enemy_wheel.spin_completed.connect(_on_enemy_spin_completed)
+	player_wheel.result_ready.connect(_on_player_result)
+	enemy_wheel.result_ready.connect(_on_enemy_result)
+	_player_launch_btn.pressed.connect(_on_player_launch)
+	player_wheel.load_player_slots()
 
 	_setup_hp_bars()
 	_setup_section_overlays()
 	_setup_logs()
-	_setup_enemy_ball()
 	_setup_throws_label()
 	_start_player_turn()
-
-# ─── Setup ───────────────────────────────────────────────────────────────────
 
 func _setup_hp_bars() -> void:
 	if GameState.enemy_max_hp == 0:
@@ -103,14 +91,6 @@ func _setup_section_overlays() -> void:
 	_player_section_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_player_section_overlay)
 
-func _setup_enemy_ball() -> void:
-	_enemy_ball = Sprite2D.new()
-	_enemy_ball.texture = load("res://sprites/balls/ball_white.png")
-	_enemy_ball.scale = Vector2(0.5, 0.5)
-	_enemy_ball.z_index = 2
-	_enemy_ball.visible = false
-	add_child(_enemy_ball)
-
 func _setup_throws_label() -> void:
 	_throws_label = Label.new()
 	_throws_label.position = Vector2(920, 670)
@@ -131,15 +111,11 @@ func _setup_logs() -> void:
 	_enemy_log.size = ENEMY_LOG_SIZE
 	_ui_layer.add_child(_enemy_log)
 
-# ─── Logging ─────────────────────────────────────────────────────────────────
-
 func _add_player_log(text: String) -> void:
 	_player_log.add_line(text, Color(1.0, 0.85, 0.7))
 
 func _add_enemy_log(text: String) -> void:
 	_enemy_log.add_line(text, Color(0.7, 0.85, 1.0))
-
-# ─── Turn management ─────────────────────────────────────────────────────────
 
 func _start_player_turn() -> void:
 	_current_turn = Turn.PLAYER
@@ -148,9 +124,7 @@ func _start_player_turn() -> void:
 	_player_throws_data.clear()
 	_enemy_section_overlay.visible = true
 	_player_section_overlay.visible = false
-	ball.process_mode = Node.PROCESS_MODE_INHERIT
-	ball.return_to_slot()
-	ball.visible = true
+	_player_launch_btn.disabled = false
 	_update_throws_counter()
 	_add_player_log("— Turn %d: your turn —" % _turn_number)
 
@@ -167,128 +141,61 @@ func _start_enemy_turn() -> void:
 func _do_enemy_throw() -> void:
 	if _combat_over:
 		return
-	_enemy_ball.visible = true
-	enemy_wheel.start_spinning()
-	await get_tree().create_timer(ENEMY_SPIN_DELAY).timeout
-	if not _combat_over:
-		enemy_wheel.stop_on_random_item()
+	enemy_wheel.launch()
 
-# ─── Process / Ball ──────────────────────────────────────────────────────────
-
-func _process(delta: float) -> void:
-	if _combat_over:
+func _input(event: InputEvent) -> void:
+	if _combat_over or _current_turn != Turn.PLAYER:
 		return
+	if event.is_action_pressed("ui_accept"):
+		_on_player_launch()
 
-	if _current_turn == Turn.ENEMY:
-		if _enemy_ball.visible:
-			var spin_r: float = enemy_wheel.get_spinning_rotation()
-			var radius: float = enemy_wheel.get_item_world_radius()
-			_enemy_ball.global_position = enemy_wheel.global_position + \
-				Vector2(cos(spin_r), sin(spin_r)) * radius
+func _on_player_launch() -> void:
+	if _combat_over or _current_turn != Turn.PLAYER or _player_throws_remaining <= 0:
 		return
-
-	if ball.is_held():
-		var ball_pos: Vector2 = ball.global_position
-		var dist: float = (ball_pos - player_wheel.global_position).length()
-		var is_over: bool = dist <= WHEEL_VISUAL_RADIUS * player_wheel.scale.x
-
-		if is_over and not _ball_over_wheel:
-			_ball_over_wheel = true
-			player_wheel.start_spinning()
-			player_wheel.set_highlight(true)
-		elif not is_over and _ball_over_wheel:
-			_ball_over_wheel = false
-			player_wheel.stop_spinning()
-			player_wheel.set_highlight(false)
-
-	if _ball_rolling:
-		var spin_r: float = player_wheel.get_spinning_rotation()
-		var radius: float = player_wheel.get_item_world_radius()
-		var target_pos: Vector2 = player_wheel.global_position + \
-			Vector2(cos(spin_r + _ball_offset_angle), sin(spin_r + _ball_offset_angle)) * radius + \
-			Vector2(0, BALL_Y_OFFSET)
-
-		if _ball_approach_time > 0.0:
-			_ball_approach_time -= delta
-			var t: float = clamp(1.0 - _ball_approach_time / BALL_APPROACH_DURATION, 0.0, 1.0)
-			ball.global_position = _ball_approach_start.lerp(target_pos, t)
-		else:
-			ball.global_position = target_pos
-
-func _on_ball_released(_world_pos: Vector2) -> void:
-	if _combat_over or _current_turn == Turn.ENEMY or _player_throws_remaining <= 0:
-		ball.return_to_slot()
-		return
-	if _ball_over_wheel:
-		_ball_over_wheel = false
-		player_wheel.set_highlight(false)
-		_launch_ball_on_wheel()
-	else:
-		player_wheel.stop_spinning()
-		ball.return_to_slot()
-
-func _launch_ball_on_wheel() -> void:
-	var spin_info: Dictionary = player_wheel.stop_on_random_item()
-	if spin_info.is_empty():
-		ball.return_to_slot()
-		return
-
-	var target_r: float = float(spin_info["target_r"])
-	_ball_offset_angle = -PI / 2.0 - target_r
-	_ball_approach_start = ball.global_position
-	_ball_approach_time = BALL_APPROACH_DURATION
-
-	ball.start_rolling()
-	_ball_rolling = true
-
-# ─── Helpers ──────────────────────────────────────────────────────────────────
+	_player_launch_btn.disabled = true
+	_player_throws_remaining -= 1
+	_update_throws_counter()
+	player_wheel.launch()
 
 func _update_throws_counter() -> void:
 	var remaining: int = _player_throws_remaining if _current_turn == Turn.PLAYER else _enemy_throws_remaining
 	_throws_label.text = str(remaining)
 
-# ─── Spin callbacks ──────────────────────────────────────────────────────────
+func _on_player_result(slot_number: int) -> void:
+	if _combat_over:
+		return
 
-func _on_spin_completed(item: WheelItem) -> void:
-	_ball_rolling = false
-	ball.return_to_slot()
-	ball.visible = true
+	var color_str := "black" if slot_number % 2 == 1 else "red"
+	_player_throws_data.append({"value": slot_number, "slot_color": color_str})
+	_player_accumulated_damage += slot_number
 
-	var value := item.modifier
-	var color_str := "black" if item.slot_color == WheelItem.SlotColor.BLACK else "red"
-
-	_player_throws_data.append({"value": value, "slot_color": color_str})
-	_player_accumulated_damage += value
-	_player_throws_remaining -= 1
-	_update_throws_counter()
-
-	damage_display.show_damage(value)
+	damage_display.show_damage(slot_number)
 
 	var throw_num: int = THROWS_PER_TURN - _player_throws_remaining
 	_add_player_log("Throw %d: %d %s (total: %d)" % [
-		throw_num, value, color_str, _player_accumulated_damage
+		throw_num, slot_number, color_str, _player_accumulated_damage
 	])
 
 	if _player_throws_remaining <= 0:
-		ball.process_mode = Node.PROCESS_MODE_DISABLED
 		await damage_display.damage_applied
 		_apply_player_damage(_player_accumulated_damage)
+	else:
+		_player_launch_btn.disabled = false
 
-func _on_enemy_spin_completed(item: WheelItem) -> void:
+func _on_enemy_result(slot_number: int) -> void:
 	if _combat_over:
 		return
-	_enemy_ball.visible = false
 
-	_enemy_accumulated_damage += item.modifier
+	_enemy_accumulated_damage += slot_number
 	_enemy_throws_remaining -= 1
 	_update_throws_counter()
 
-	damage_display.show_damage(item.modifier)
+	damage_display.show_damage(slot_number)
 
-	var color_str := "black" if item.slot_color == WheelItem.SlotColor.BLACK else "red"
+	var color_str := "black" if slot_number % 2 == 1 else "red"
 	var throw_num: int = THROWS_PER_TURN - _enemy_throws_remaining
 	_add_enemy_log("Throw %d: %d %s (total: %d)" % [
-		throw_num, item.modifier, color_str, _enemy_accumulated_damage
+		throw_num, slot_number, color_str, _enemy_accumulated_damage
 	])
 
 	if _enemy_throws_remaining > 0:
@@ -297,8 +204,6 @@ func _on_enemy_spin_completed(item: WheelItem) -> void:
 	else:
 		await damage_display.damage_applied
 		_apply_enemy_damage(_enemy_accumulated_damage)
-
-# ─── Damage resolution ───────────────────────────────────────────────────────
 
 func _apply_player_damage(amount: int) -> void:
 	var mult := Modifier.compute_multiplier(_player_throws_data)
@@ -333,8 +238,6 @@ func _apply_enemy_damage(amount: int) -> void:
 		_show_end_screen()
 	else:
 		_start_player_turn()
-
-# ─── End / Reward screen ─────────────────────────────────────────────────────
 
 func _show_reward_screen() -> void:
 	var reward = load("res://scripts/combat/reward_popup.gd").new()
