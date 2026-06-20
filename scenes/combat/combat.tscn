@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/ui/hp_bar.tscn" id="12_hpbar"]
 [ext_resource type="Texture2D" uid="uid://86andjp6nfn7" path="res://sprites/hud/monster_gobelin_hud.png" id="13_hud"]
 [ext_resource type="Texture2D" uid="uid://cw0pws2sx0ec6" path="res://sprites/hud/hud_joueur.png" id="14_player_hud"]
+[ext_resource type="Texture2D" uid="uid://cdkq71ccuvlob" path="res://sprites/hud/hud_effect.png" id="15_effect"]
 
 [node name="Main" type="Node2D" unique_id=1165397904]
 script = ExtResource("1_script")
@@ -49,8 +50,15 @@ texture_filter = 1
 
 [node name="PlayerHUD" type="Node2D" parent="UILayer"]
 
+[node name="PlayerHUDEffect" type="Sprite2D" parent="UILayer/PlayerHUD"]
+position = Vector2(144, 640)
+scale = Vector2(3, 3)
+centered = true
+texture_filter = 1
+texture = ExtResource("15_effect")
+
 [node name="PlayerPortrait" type="Sprite2D" parent="UILayer/PlayerHUD"]
-position = Vector2(144, 520)
+position = Vector2(144, 460)
 scale = Vector2(3, 3)
 centered = true
 texture_filter = 1
@@ -58,11 +66,18 @@ texture = ExtResource("14_player_hud")
 
 [node name="PlayerHPBar" parent="UILayer/PlayerHUD" instance=ExtResource("12_hpbar")]
 offset_left = 43.0
-offset_top = 592.0
+offset_top = 532.0
 offset_right = 283.0
-offset_bottom = 626.0
+offset_bottom = 566.0
 
 [node name="EnemyHUD" type="Node2D" parent="UILayer"]
+
+[node name="EnemyHUDEffect" type="Sprite2D" parent="UILayer/EnemyHUD"]
+position = Vector2(144, 288)
+scale = Vector2(3, 3)
+centered = true
+texture_filter = 1
+texture = ExtResource("15_effect")
 
 [node name="EnemyPortrait" type="Sprite2D" parent="UILayer/EnemyHUD"]
 position = Vector2(144, 108)
