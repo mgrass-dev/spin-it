@@ -41,6 +41,11 @@ var _player_log: CombatLogPanel
 var _enemy_log: CombatLogPanel
 var _throws_label: Label
 
+var _player_damage_counter: Node2D
+var _enemy_damage_counter: Node2D
+var _player_damage_num: Label
+var _enemy_damage_num: Label
+
 func _ready() -> void:
 	if not OS.has_feature("editor"):
 		var screen_size := DisplayServer.screen_get_size()
@@ -59,6 +64,7 @@ func _ready() -> void:
 	_setup_section_overlays()
 	_setup_logs()
 	_setup_throws_label()
+	_setup_damage_counters()
 	_start_player_turn()
 
 func _setup_hp_bars() -> void:
@@ -161,6 +167,61 @@ func _setup_throws_label() -> void:
 	_throws_label.add_theme_color_override("font_color", Color(1, 1, 1))
 	add_child(_throws_label)
 
+func _setup_damage_counters() -> void:
+	_player_damage_counter = Node2D.new()
+	_player_damage_counter.position = Vector2(920, 480)
+	add_child(_player_damage_counter)
+
+	_player_damage_num = Label.new()
+	_player_damage_num.text = "0"
+	_player_damage_num.position = Vector2(-70, -14)
+	_player_damage_num.size = Vector2(140, 36)
+	_player_damage_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_player_damage_num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_player_damage_num.add_theme_font_size_override("font_size", 32)
+	_player_damage_num.add_theme_color_override("font_color", Color(0.15, 0.6, 0.85))
+	_player_damage_counter.add_child(_player_damage_num)
+
+	var player_dmg_label := Label.new()
+	player_dmg_label.text = "DÉGÂTS"
+	player_dmg_label.position = Vector2(-70, 20)
+	player_dmg_label.size = Vector2(140, 20)
+	player_dmg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	player_dmg_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	player_dmg_label.add_theme_font_size_override("font_size", 14)
+	player_dmg_label.add_theme_color_override("font_color", Color(0.15, 0.6, 0.85))
+	player_dmg_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.5))
+	player_dmg_label.add_theme_constant_override("outline_size", 2)
+	_player_damage_counter.add_child(player_dmg_label)
+	_player_damage_counter.visible = false
+
+	_enemy_damage_counter = Node2D.new()
+	_enemy_damage_counter.position = Vector2(920, 160)
+	add_child(_enemy_damage_counter)
+
+	_enemy_damage_num = Label.new()
+	_enemy_damage_num.text = "0"
+	_enemy_damage_num.position = Vector2(-70, -14)
+	_enemy_damage_num.size = Vector2(140, 36)
+	_enemy_damage_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_enemy_damage_num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_enemy_damage_num.add_theme_font_size_override("font_size", 32)
+	_enemy_damage_num.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15))
+	_enemy_damage_counter.add_child(_enemy_damage_num)
+
+	var enemy_dmg_label := Label.new()
+	enemy_dmg_label.text = "DÉGÂTS"
+	enemy_dmg_label.position = Vector2(-70, 20)
+	enemy_dmg_label.size = Vector2(140, 20)
+	enemy_dmg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	enemy_dmg_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	enemy_dmg_label.add_theme_font_size_override("font_size", 14)
+	enemy_dmg_label.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15))
+	enemy_dmg_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.5))
+	enemy_dmg_label.add_theme_constant_override("outline_size", 2)
+	_enemy_damage_counter.add_child(enemy_dmg_label)
+	_enemy_damage_counter.visible = false
+
 func _setup_logs() -> void:
 	_player_log = CombatLogPanel.new()
 	_player_log.position = PLAYER_LOG_POS
@@ -178,6 +239,19 @@ func _add_player_log(text: String) -> void:
 func _add_enemy_log(text: String) -> void:
 	_enemy_log.add_line(text, Color(0.7, 0.85, 1.0))
 
+func _update_damage_counter(counter: Node2D, num_label: Label, value: int) -> void:
+	num_label.text = str(value)
+	if not counter.visible:
+		counter.visible = true
+	counter.scale = Vector2(1, 1)
+	var tween := create_tween()
+	tween.tween_property(counter, "scale", Vector2(1.25, 1.25), 0.08)
+	tween.tween_property(counter, "scale", Vector2(1, 1), 0.08)
+
+func _hide_damage_counters() -> void:
+	_player_damage_counter.visible = false
+	_enemy_damage_counter.visible = false
+
 func _start_player_turn() -> void:
 	_current_turn = Turn.PLAYER
 	_player_throws_remaining = THROWS_PER_TURN
@@ -187,6 +261,7 @@ func _start_player_turn() -> void:
 	_player_section_overlay.visible = false
 	_player_launch_btn.disabled = false
 	_update_throws_counter()
+	_hide_damage_counters()
 	_add_player_log("— Turn %d: your turn —" % _turn_number)
 
 func _start_enemy_turn() -> void:
@@ -196,6 +271,7 @@ func _start_enemy_turn() -> void:
 	_enemy_section_overlay.visible = false
 	_player_section_overlay.visible = true
 	_update_throws_counter()
+	_hide_damage_counters()
 	_add_enemy_log("— Turn %d: enemy's turn —" % _turn_number)
 	_do_enemy_throw()
 
@@ -229,6 +305,7 @@ func _on_player_result(slot_number: int) -> void:
 	var color_str := "black" if slot_number % 2 == 1 else "red"
 	_player_throws_data.append({"value": slot_number, "slot_color": color_str})
 	_player_accumulated_damage += slot_number
+	_update_damage_counter(_player_damage_counter, _player_damage_num, _player_accumulated_damage)
 
 	damage_display.show_damage(slot_number)
 
@@ -250,6 +327,7 @@ func _on_enemy_result(slot_number: int) -> void:
 	_enemy_accumulated_damage += slot_number
 	_enemy_throws_remaining -= 1
 	_update_throws_counter()
+	_update_damage_counter(_enemy_damage_counter, _enemy_damage_num, _enemy_accumulated_damage)
 
 	damage_display.show_damage(slot_number)
 
@@ -272,6 +350,7 @@ func _apply_player_damage(amount: int) -> void:
 
 	GameState.enemy_hp = maxi(0, GameState.enemy_hp - final_damage)
 	await _enemy_hp_bar.animate_hp(GameState.enemy_hp, GameState.enemy_max_hp)
+	_hide_damage_counters()
 
 	var log_line: String = "Total: %d damage" % final_damage
 	if mult > 1.0:
@@ -291,6 +370,7 @@ func _apply_player_damage(amount: int) -> void:
 func _apply_enemy_damage(amount: int) -> void:
 	GameState.player_hp = maxi(0, GameState.player_hp - amount)
 	await _player_hp_bar.animate_hp(GameState.player_hp, GameState.player_max_hp)
+	_hide_damage_counters()
 	_add_enemy_log("Total: %d damage (you: %d HP)" % [amount, GameState.player_hp])
 	_turn_number += 1
 	if GameState.player_hp <= 0:
