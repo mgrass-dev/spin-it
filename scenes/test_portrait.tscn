@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://dnfvet8uvrxyd"]
+
+[ext_resource type="Texture2D" uid="uid://86andjp6nfn7" path="res://sprites/hud/monster_gobelin_hud.png" id="1_hud"]
+
+[node name="TestRoot" type="Node2D"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+zoom = Vector2(1, 1)
+
+[node name="Portrait" type="Sprite2D" parent="."]
+position = Vector2(200, 200)
+scale = Vector2(4, 4)
+texture_filter = 1
+texture = ExtResource("1_hud")
+
+[node name="DebugLabel" type="Label" parent="."]
+position = Vector2(10, 10)
+text = "Portrait at native 96x72, scale 4x, NEAREST filter"
+add_theme_font_size_override("font_size", 16)

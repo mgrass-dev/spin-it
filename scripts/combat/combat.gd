@@ -9,7 +9,7 @@ const OVERLAY_SPLIT_Y := 315
 const ENEMY_SPIN_DELAY := 2.0
 const THROWS_PER_TURN := 3
 
-const PLAYER_LOG_POS := Vector2(8, 510)
+const PLAYER_LOG_POS := Vector2(1022, 510)
 const PLAYER_LOG_SIZE := Vector2(250, 200)
 const ENEMY_LOG_POS := Vector2(1022, 8)
 const ENEMY_LOG_SIZE := Vector2(250, 300)
@@ -18,8 +18,10 @@ const ENEMY_LOG_SIZE := Vector2(250, 300)
 @onready var enemy_wheel: RouletteWheel = $EnemyWheel
 @onready var damage_display: CanvasLayer = $DamageDisplay
 @onready var _ui_layer: CanvasLayer = $UILayer
-@onready var _enemy_hp_bar: HPBar = $UILayer/EnemyHPBar
-@onready var _player_hp_bar: HPBar = $UILayer/PlayerHPBar
+@onready var _enemy_hud: Node2D = $UILayer/EnemyHUD
+@onready var _enemy_hp_bar: HPBar = $UILayer/EnemyHUD/EnemyHPBar
+@onready var _player_hud: Node2D = $UILayer/PlayerHUD
+@onready var _player_hp_bar: HPBar = $UILayer/PlayerHUD/PlayerHPBar
 @onready var _player_launch_btn: Button = $UILayer/PlayerLaunchButton
 
 var _combat_over := false
@@ -51,6 +53,8 @@ func _ready() -> void:
 	player_wheel.load_player_slots()
 
 	_setup_hp_bars()
+	_setup_enemy_name()
+	_setup_player_name()
 	_setup_section_overlays()
 	_setup_logs()
 	_setup_throws_label()
@@ -65,12 +69,47 @@ func _setup_hp_bars() -> void:
 		GameState.player_hp = 50
 
 	_enemy_hp_bar.setup(
-		load("res://sprites/map/icon_combat.png"),
+		null,
 		"",
 		GameState.enemy_hp,
 		GameState.enemy_max_hp
 	)
 	_player_hp_bar.setup(null, "", GameState.player_hp, GameState.player_max_hp)
+	_player_hp_bar.set_bar_fill_color(Color("#255c9b"))
+
+func _setup_enemy_name() -> void:
+	var name_label := Label.new()
+	name_label.text = "GOBELIN"
+	name_label.position = Vector2(54, 8)
+	name_label.size = Vector2(140, 22)
+	name_label.add_theme_font_size_override("font_size", 17)
+	name_label.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15))
+	_enemy_hud.add_child(name_label)
+
+	var title_label := Label.new()
+	title_label.text = "Pique-Bourse"
+	title_label.position = Vector2(54, 30)
+	title_label.size = Vector2(140, 16)
+	title_label.add_theme_font_size_override("font_size", 12)
+	title_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.95))
+	_enemy_hud.add_child(title_label)
+
+func _setup_player_name() -> void:
+	var name_label := Label.new()
+	name_label.text = "JOUEUR"
+	name_label.position = Vector2(54, 420)
+	name_label.size = Vector2(140, 22)
+	name_label.add_theme_font_size_override("font_size", 17)
+	name_label.add_theme_color_override("font_color", Color(0.15, 0.6, 0.85))
+	_player_hud.add_child(name_label)
+
+	var title_label := Label.new()
+	title_label.text = "Aventurier"
+	title_label.position = Vector2(54, 442)
+	title_label.size = Vector2(140, 16)
+	title_label.add_theme_font_size_override("font_size", 12)
+	title_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.95))
+	_player_hud.add_child(title_label)
 
 func _setup_section_overlays() -> void:
 	var layer := CanvasLayer.new()
@@ -178,7 +217,7 @@ func _on_player_result(slot_number: int) -> void:
 
 	if _player_throws_remaining <= 0:
 		await damage_display.damage_applied
-		_apply_player_damage(_player_accumulated_damage)
+		await _apply_player_damage(_player_accumulated_damage)
 	else:
 		_player_launch_btn.disabled = false
 
@@ -203,14 +242,14 @@ func _on_enemy_result(slot_number: int) -> void:
 		_do_enemy_throw()
 	else:
 		await damage_display.damage_applied
-		_apply_enemy_damage(_enemy_accumulated_damage)
+		await _apply_enemy_damage(_enemy_accumulated_damage)
 
 func _apply_player_damage(amount: int) -> void:
 	var mult := Modifier.compute_multiplier(_player_throws_data)
 	var final_damage := roundi(amount * mult)
 
 	GameState.enemy_hp = maxi(0, GameState.enemy_hp - final_damage)
-	_enemy_hp_bar.update_hp(GameState.enemy_hp, GameState.enemy_max_hp)
+	await _enemy_hp_bar.animate_hp(GameState.enemy_hp, GameState.enemy_max_hp)
 
 	var log_line: String = "Total: %d damage" % final_damage
 	if mult > 1.0:
@@ -229,7 +268,7 @@ func _apply_player_damage(amount: int) -> void:
 
 func _apply_enemy_damage(amount: int) -> void:
 	GameState.player_hp = maxi(0, GameState.player_hp - amount)
-	_player_hp_bar.update_hp(GameState.player_hp, GameState.player_max_hp)
+	await _player_hp_bar.animate_hp(GameState.player_hp, GameState.player_max_hp)
 	_add_enemy_log("Total: %d damage (you: %d HP)" % [amount, GameState.player_hp])
 	_turn_number += 1
 	if GameState.player_hp <= 0:

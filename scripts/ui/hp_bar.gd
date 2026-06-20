@@ -5,6 +5,8 @@ extends HBoxContainer
 @export var font_size_name: int = 14
 @export var font_size_value: int = 11
 
+var _hp_tween: Tween
+
 @onready var _icon: TextureRect = $Icon
 @onready var _name_label: Label = $Content/NameLabel
 @onready var _bar_row: HBoxContainer = $Content/BarRow
@@ -29,6 +31,12 @@ func _style_bar() -> void:
 	_bar.show_percentage = false
 	_value_label.add_theme_color_override("font_color", Color.WHITE)
 
+func set_bar_fill_color(color: Color) -> void:
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	fill.set_corner_radius_all(3)
+	_bar.add_theme_stylebox_override("fill", fill)
+
 func setup(icon_texture: Texture2D, entity_name: String, hp: int, max_hp: int) -> void:
 	_icon.texture = icon_texture
 	_icon.visible = icon_texture != null
@@ -42,3 +50,14 @@ func update_hp(hp: int, max_hp: int) -> void:
 	_bar.value = hp
 	if max_hp > 0:
 		_value_label.text = "%d / %d" % [hp, max_hp]
+
+func animate_hp(hp: int, max_hp: int, duration: float = 0.3) -> void:
+	_bar.max_value = max_hp
+	_value_label.text = "%d / %d" % [hp, max_hp]
+	if _bar.value == hp:
+		return
+	if _hp_tween and _hp_tween.is_valid():
+		_hp_tween.kill()
+	_hp_tween = create_tween()
+	_hp_tween.tween_property(_bar, "value", hp, duration)
+	await _hp_tween.finished

@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://bpbktemfxbgni" path="res://scenes/combat/damage_display.tscn" id="11_damage"]
 [ext_resource type="PackedScene" uid="uid://bofw1sm0ss8fu" path="res://scenes/menu/settings_menu.tscn" id="11_ya4ey"]
 [ext_resource type="PackedScene" uid="uid://c3hpbarscn001" path="res://scenes/ui/hp_bar.tscn" id="12_hpbar"]
+[ext_resource type="Texture2D" uid="uid://86andjp6nfn7" path="res://sprites/hud/monster_gobelin_hud.png" id="13_hud"]
+[ext_resource type="Texture2D" uid="uid://cw0pws2sx0ec6" path="res://sprites/hud/hud_joueur.png" id="14_player_hud"]
 
 [node name="Main" type="Node2D" unique_id=1165397904]
 script = ExtResource("1_script")
@@ -43,18 +45,36 @@ position = Vector2(640, 480)
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 layer = 5
+texture_filter = 1
 
-[node name="EnemyHPBar" parent="UILayer" instance=ExtResource("12_hpbar")]
-offset_left = 15.0
-offset_top = 10.0
-offset_right = 310.0
-offset_bottom = 62.0
+[node name="PlayerHUD" type="Node2D" parent="UILayer"]
 
-[node name="PlayerHPBar" parent="UILayer" instance=ExtResource("12_hpbar")]
-offset_left = 955.0
-offset_top = 328.0
-offset_right = 1265.0
-offset_bottom = 380.0
+[node name="PlayerPortrait" type="Sprite2D" parent="UILayer/PlayerHUD"]
+position = Vector2(144, 520)
+scale = Vector2(3, 3)
+centered = true
+texture_filter = 1
+texture = ExtResource("14_player_hud")
+
+[node name="PlayerHPBar" parent="UILayer/PlayerHUD" instance=ExtResource("12_hpbar")]
+offset_left = 43.0
+offset_top = 592.0
+offset_right = 283.0
+offset_bottom = 626.0
+
+[node name="EnemyHUD" type="Node2D" parent="UILayer"]
+
+[node name="EnemyPortrait" type="Sprite2D" parent="UILayer/EnemyHUD"]
+position = Vector2(144, 108)
+scale = Vector2(3, 3)
+texture_filter = 1
+texture = ExtResource("13_hud")
+
+[node name="EnemyHPBar" parent="UILayer/EnemyHUD" instance=ExtResource("12_hpbar")]
+offset_left = 43.0
+offset_top = 180.0
+offset_right = 283.0
+offset_bottom = 214.0
 
 [node name="PlayerLaunchButton" type="Button" parent="UILayer"]
 offset_left = 540.0

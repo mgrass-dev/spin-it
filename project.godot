@@ -24,7 +24,9 @@ GameState="*res://scripts/global/game_state.gd"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/mode=2
-window/stretch/mode="canvas_items"
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+window/stretch/scale_mode=1
 
 [editor_plugins]
 
@@ -39,3 +41,4 @@ enabled=PackedStringArray("Gut")
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/texture_filter=0
