@@ -55,6 +55,7 @@ func _ready() -> void:
 	_setup_hp_bars()
 	_setup_enemy_name()
 	_setup_player_name()
+	_setup_effect_labels()
 	_setup_section_overlays()
 	_setup_logs()
 	_setup_throws_label()
@@ -97,7 +98,7 @@ func _setup_enemy_name() -> void:
 func _setup_player_name() -> void:
 	var name_label := Label.new()
 	name_label.text = "JOUEUR"
-	name_label.position = Vector2(54, 420)
+	name_label.position = Vector2(54, 360)
 	name_label.size = Vector2(140, 22)
 	name_label.add_theme_font_size_override("font_size", 17)
 	name_label.add_theme_color_override("font_color", Color(0.15, 0.6, 0.85))
@@ -105,11 +106,32 @@ func _setup_player_name() -> void:
 
 	var title_label := Label.new()
 	title_label.text = "Aventurier"
-	title_label.position = Vector2(54, 442)
+	title_label.position = Vector2(54, 382)
 	title_label.size = Vector2(140, 16)
 	title_label.add_theme_font_size_override("font_size", 12)
 	title_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.95))
 	_player_hud.add_child(title_label)
+
+func _setup_effect_labels() -> void:
+	var enemy_label := Label.new()
+	enemy_label.text = "EFFET ENNEMI"
+	enemy_label.position = Vector2(-30, 238)
+	enemy_label.size = Vector2(216, 22)
+	enemy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	enemy_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	enemy_label.add_theme_font_size_override("font_size", 17)
+	enemy_label.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15))
+	_enemy_hud.add_child(enemy_label)
+
+	var player_label := Label.new()
+	player_label.text = "EFFET JOUEUR"
+	player_label.position = Vector2(-30, 590)
+	player_label.size = Vector2(216, 22)
+	player_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	player_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	player_label.add_theme_font_size_override("font_size", 17)
+	player_label.add_theme_color_override("font_color", Color(0.15, 0.6, 0.85))
+	_player_hud.add_child(player_label)
 
 func _setup_section_overlays() -> void:
 	var layer := CanvasLayer.new()
